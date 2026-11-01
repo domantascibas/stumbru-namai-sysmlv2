@@ -18,7 +18,7 @@ package Rooms {
             part L1 : Light {
                 doc /* Šviesa virš valgomojo stalo */
                 :>> label = "L1";
-                :>> bulbCount = 1;
+                :>> bulbSocketCount = 1;
             }
 
             part L2 : Light {
@@ -28,13 +28,14 @@ package Rooms {
                      * OFF -> ON įjungia išsaugotą režimą, o ne perjungia kitą.
                      */
                 :>> label = "L2";
-                :>> bulbCount = 1;
+                :>> bulbSocketCount = 1;
             }
 
             part L3 : Light {
                 doc /* Virtuvės zonos apšvietimas */
                 :>> label = "L3";
-                :>> bulbCount = 4;
+                :>> bulbSocketCount = 4;
+                part ledBulbs : LedvanceGu10Led4W[4] :> bulbs;
             }
 
             part L4 : Light {
@@ -69,7 +70,7 @@ package Rooms {
             part dishwasher : PluggedAppliance { doc /* Indaplovė */ }
             part oven : PluggedAppliance {
                 doc /* Orkaitė */
-                comment /* On QF7 together with the hob (confirmed by switching QF7 off).
+                comment /* On F7 together with the hob (confirmed by switching F7 off).
                          * To be verified behind the cabinet: plugged into R4 or hard-wired.
                          */
             }
@@ -192,15 +193,17 @@ package Rooms {
             // ----- Lighting -----
 
             part L1 : Light {
-                doc /* Pagrindinis apšvietimas */
+                doc /* Pagrindinis apšvietimas; 2 perdegusios LED pakeistos halogeninėmis */
                 :>> label = "L1";
-                :>> bulbCount = 6;
+                :>> bulbSocketCount = 6;
+                part ledBulbs : OkkoG9Led4W[4] :> bulbs;
+                part halogenBulbs : OsramG9Halogen33W[2] :> bulbs;
             }
 
             part L2 : Light {
                 doc /* Šviesa virš lovos (debesėlis) */
                 :>> label = "L2";
-                :>> bulbCount = 1;
+                :>> bulbSocketCount = 1;
             }
 
             // ----- Plugged-in appliances -----
@@ -258,21 +261,25 @@ package Rooms {
             // ----- Lighting -----
 
             part L1 : Light {
-                doc /* Pagrindinis apšvietimas */
+                doc /* Pagrindinis apšvietimas; 1 LED pakeista halogenine */
                 :>> label = "L1";
-                :>> bulbCount = 6;
+                :>> bulbSocketCount = 6;
+                part ledBulbs : OkkoG9Led4W[5] :> bulbs;
+                part halogenBulbs : OsramG9Halogen33W[1] :> bulbs;
             }
 
             part L2 : Light {
                 doc /* Sieninė skaitymo šviesa, lovos kairėje */
                 :>> label = "L2";
-                :>> bulbCount = 1;
+                :>> bulbSocketCount = 1;
+                part halogenBulbs : OsramG9Halogen33W[1] :> bulbs;
             }
 
             part L3 : Light {
                 doc /* Sieninė skaitymo šviesa, lovos dešinėje */
                 :>> label = "L3";
-                :>> bulbCount = 1;
+                :>> bulbSocketCount = 1;
+                part halogenBulbs : OsramG9Halogen33W[1] :> bulbs;
             }
 
             // ----- Outlets -----
@@ -339,7 +346,8 @@ package Rooms {
                      * šiuo metu kiekviename įsukta po 1 lemputę.
                      */
                 :>> label = "L1";
-                :>> bulbCount = 3;
+                :>> bulbSocketCount = 6;
+                part ledBulbs : PhilipsE27Led13W[3] :> bulbs;
             }
 
             // ----- Fixed appliances -----
@@ -436,9 +444,17 @@ package Rooms {
             // ----- Lighting -----
 
             part L1 : Light {
-                doc /* Pagrindinis apšvietimas */
+                doc /* Pagrindinis apšvietimas; 12 V, maitinamas per elektroninį transformatorių */
+                comment /* TODO (postponed): transformer problem.
+                         * Planned to use 4 Standart 4.5 W bulbs (6 in the spare box), but with them
+                         * the light keeps switching off: probably the load is below the
+                         * transformer's minimum. Currently only 1 LEDVANCE 8 W bulb is installed.
+                         * Next steps: check transformer label (count, power range / minimum load);
+                         * options: LED driver 12 V DC without minimum load, or convert sockets to GU10 (230 V).
+                         */
                 :>> label = "L1";
-                :>> bulbCount = 4;
+                :>> bulbSocketCount = 4;
+                part ledBulbs : LedvanceGu53Led8W[1] :> bulbs;
             }
 
             part L2 : Light {
@@ -498,6 +514,18 @@ package Rooms {
                 doc /* Lauko lempa */
                 :>> label = "L1";
             }
+        }
+
+        // Not installed anywhere: replacements for E27 (hallway), G9 (kids room, bedroom)
+        // GU10 (kitchen zone) and GU5.3 (bathroom) lights
+        part spareBulbs : SpareBulbBox {
+            doc /* Atsarginių lempučių dėžė */
+            part osramLedBulbs : OsramE27Led8W[2] :> bulbs;
+            part philipsLedBulbs : PhilipsE27Led13W[3] :> bulbs;
+            part okkoLedBulbs : OkkoG9Led4W[1] :> bulbs;
+            part osramHalogenBulbs : OsramG9Halogen33W[1] :> bulbs;
+            part ledvanceGu10Bulbs : LedvanceGu10Led4W[2] :> bulbs;
+            part standartGu53Bulbs : StandartGu53Led4W[6] :> bulbs;
         }
     }
 }

@@ -6,9 +6,11 @@ package Panel {
          * Circuits were mapped by switching breakers off one at a time
          * (2026-11-01).
          *
-         * Labels follow common Lithuanian practice: QF = circuit breaker,
-         * QD = RCD. "Chart position" in comments refers to the numbering on
-         * the hand-drawn chart taped inside the panel door.
+         * Labels follow IEC 81346-2 (EN 81346-2) letter codes as commonly used
+         * in European panels: Q = main switch, F = protective device (RCD,
+         * circuit breaker). `label` is the sticker on the device, `name` is the
+         * short title in the legend inside the panel door. "Chart position" in
+         * comments refers to the numbering on the old hand-drawn chart.
          */
 
     private import ElectricalLibrary::*;
@@ -19,9 +21,10 @@ package Panel {
 
         // ----- Top row -----
 
-        part QF1 : CircuitBreaker {
+        part Q1 : CircuitBreaker {
             comment /* Main breaker for the whole apartment. Chart positions 1-3. */
-            :>> label = "QF1";
+            :>> label = "Q1";
+            :>> name = "Įvadas";
             :>> product = "ETI ETIMAT 6";
             :>> tripCurve = TripCurve::C;
             :>> ratedCurrent = 25 [A];
@@ -29,18 +32,20 @@ package Panel {
             :>> poles = 3;
         }
 
-        // RCD test confirmed: all circuits (QF2-QF13) are behind QD1
-        part QD1 : Rcd {
-            :>> label = "QD1";
+        // RCD test confirmed: all circuits (F2-F13) are behind F1
+        part F1 : Rcd {
+            :>> label = "F1";
+            :>> name = "Nuotėkio relė 30 mA";
             :>> product = "ETI EFI-4";
             :>> ratedCurrent = 25 [A];
             :>> residualCurrent = 0.03 [A];
             :>> rcdType = RcdType::AC;
             :>> poles = 4;
 
-            part QF2 : CircuitBreaker {
+            part F2 : CircuitBreaker {
                 comment /* Kids' room outlets and cloud light, hallway outlets. Chart position 4. */
-                :>> label = "QF2";
+                :>> label = "F2";
+                :>> name = "Vaikų k. ir koridoriaus rozetės";
                 :>> product = "ETI ETIMAT 6";
                 :>> tripCurve = TripCurve::C;
                 :>> ratedCurrent = 16 [A];
@@ -57,10 +62,11 @@ package Panel {
                 );
             }
 
-            part QF3 : CircuitBreaker {
+            part F3 : CircuitBreaker {
                 comment /* Bedroom outlets and reading lights, living room outlets (sofa, TV cabinet,
                          * bookshelf). Chart position 5. */
-                :>> label = "QF3";
+                :>> label = "F3";
+                :>> name = "Miegamojo ir svetainės rozetės";
                 :>> product = "ETI ETIMAT 6";
                 :>> tripCurve = TripCurve::C;
                 :>> ratedCurrent = 16 [A];
@@ -80,9 +86,10 @@ package Panel {
                 );
             }
 
-            part QF4 : CircuitBreaker {
+            part F4 : CircuitBreaker {
                 comment /* Bathroom mirror light and shaver outlet. Chart position 6. */
-                :>> label = "QF4";
+                :>> label = "F4";
+                :>> name = "Vonia: veidrodis";
                 :>> product = "ETI ETIMAT 10";
                 :>> tripCurve = TripCurve::B;
                 :>> ratedCurrent = 10 [A];
@@ -93,9 +100,10 @@ package Panel {
                 );
             }
 
-            part QF5 : CircuitBreaker {
+            part F5 : CircuitBreaker {
                 comment /* Bathroom towel rail. Chart position 7. */
-                :>> label = "QF5";
+                :>> label = "F5";
+                :>> name = "Vonia: gyvatukas";
                 :>> product = "ETI ETIMAT 6";
                 :>> tripCurve = TripCurve::C;
                 :>> ratedCurrent = 16 [A];
@@ -103,9 +111,10 @@ package Panel {
                 ref :>> feeds = apartment.bathroom.towelRail;
             }
 
-            part QF6 : CircuitBreaker {
+            part F6 : CircuitBreaker {
                 comment /* Bathroom floor heating. Chart position 8. */
-                :>> label = "QF6";
+                :>> label = "F6";
+                :>> name = "Vonia: grindų šildymas";
                 :>> product = "ETI ETIMAT 6";
                 :>> tripCurve = TripCurve::C;
                 :>> ratedCurrent = 16 [A];
@@ -115,9 +124,10 @@ package Panel {
 
             // ----- Bottom row -----
 
-            part QF7 : CircuitBreaker {
+            part F7 : CircuitBreaker {
                 comment /* Hob and oven. Chart positions 9-11. */
-                :>> label = "QF7";
+                :>> label = "F7";
+                :>> name = "Kaitlentė ir orkaitė";
                 :>> product = "ETI ETIMAT 6";
                 :>> tripCurve = TripCurve::C;
                 :>> ratedCurrent = 16 [A];
@@ -129,10 +139,11 @@ package Panel {
                 );
             }
 
-            part QF8 : CircuitBreaker {
+            part F8 : CircuitBreaker {
                 comment /* Kitchen: dishwasher, sink and coffee machine outlets, worktop LED strip.
                          * Chart position 12. */
-                :>> label = "QF8";
+                :>> label = "F8";
+                :>> name = "Virtuvė: indaplovė ir stalviršis";
                 :>> product = "ETI ETIMAT 6";
                 :>> tripCurve = TripCurve::C;
                 :>> ratedCurrent = 16 [A];
@@ -145,9 +156,10 @@ package Panel {
                 );
             }
 
-            part QF9 : CircuitBreaker {
+            part F9 : CircuitBreaker {
                 comment /* Bathroom: washing machine outlets. Chart position 13. */
-                :>> label = "QF9";
+                :>> label = "F9";
+                :>> name = "Vonia: skalbyklė";
                 :>> product = "ETI ETIMAT 6";
                 :>> tripCurve = TripCurve::C;
                 :>> ratedCurrent = 16 [A];
@@ -158,9 +170,10 @@ package Panel {
                 );
             }
 
-            part QF10 : CircuitBreaker {
+            part F10 : CircuitBreaker {
                 comment /* Kitchen: fridge, microwave, hood. Chart position 14. */
-                :>> label = "QF10";
+                :>> label = "F10";
+                :>> name = "Virtuvė: šaldytuvas ir mikrobangė";
                 :>> product = "ETI ETIMAT 6";
                 :>> tripCurve = TripCurve::C;
                 :>> ratedCurrent = 16 [A];
@@ -172,10 +185,11 @@ package Panel {
                 );
             }
 
-            part QF11 : CircuitBreaker {
+            part F11 : CircuitBreaker {
                 comment /* Main lighting in all rooms except bathroom, balcony light, bookshelf
                          * cable X1. Chart position 15. */
-                :>> label = "QF11";
+                :>> label = "F11";
+                :>> name = "Apšvietimas (be vonios)";
                 :>> product = "ETI ETIMAT 6";
                 :>> tripCurve = TripCurve::C;
                 :>> ratedCurrent = 10 [A];
@@ -192,9 +206,10 @@ package Panel {
                 );
             }
 
-            part QF12 : CircuitBreaker {
+            part F12 : CircuitBreaker {
                 comment /* Bathroom main lighting. Chart position 16. */
-                :>> label = "QF12";
+                :>> label = "F12";
+                :>> name = "Vonia: apšvietimas";
                 :>> product = "ETI ETIMAT 6";
                 :>> tripCurve = TripCurve::C;
                 :>> ratedCurrent = 10 [A];
@@ -202,9 +217,10 @@ package Panel {
                 ref :>> feeds = apartment.bathroom.L1;
             }
 
-            part QF13 : CircuitBreaker {
+            part F13 : CircuitBreaker {
                 comment /* Modem box. Chart position 17. */
-                :>> label = "QF13";
+                :>> label = "F13";
+                :>> name = "Modemas";
                 :>> product = "ETI ETIMAT 6";
                 :>> tripCurve = TripCurve::C;
                 :>> ratedCurrent = 10 [A];

@@ -41,6 +41,13 @@ package ElectricalLibrary {
         enum dimmer;
     }
 
+    enum def BulbTechnology {
+        enum led;
+        enum halogen;
+        enum incandescent;
+        enum fluorescent;
+    }
+
     // ---------------------------------------------------------------
     // Rooms
     // ---------------------------------------------------------------
@@ -73,7 +80,98 @@ package ElectricalLibrary {
     }
 
     part def Light :> Load {
-        attribute bulbCount : Natural default = 1;
+        attribute bulbSocketCount : Natural default = 1;   // number of bulb sockets (not bulbs installed)
+        part bulbs : Bulb[0..*];                      // bulbs currently installed (if known); may be fewer than bulbSocketCount
+    }
+
+    // ---------------------------------------------------------------
+    // Bulbs
+    // ---------------------------------------------------------------
+
+    part def Bulb {
+        doc /* A replaceable light source installed in a Light. */
+        attribute product : String;
+        attribute base : String;            // e.g. "G9", "E27", "GU10"
+        attribute technology : BulbTechnology;
+        attribute power : PowerValue;
+        attribute luminousFlux : Real;      // lm
+        attribute colorTemperature : ThermodynamicTemperatureValue;
+    }
+
+    part def OkkoG9Led4W :> Bulb {
+        doc /* OKKO TP-G9 LED, 4 W, 300 lm, 3000 K, 180° */
+        :>> product = "OKKO TP-G9";
+        :>> base = "G9";
+        :>> technology = BulbTechnology::led;
+        :>> power = 4 [W];
+        :>> luminousFlux = 300;
+        :>> colorTemperature = 3000 [K];
+    }
+
+    part def OsramG9Halogen33W :> Bulb {
+        doc /* OSRAM G9 halogen, 33 W, 460 lm, 2700 K, dimmable */
+        :>> product = "OSRAM HALOPIN G9 33W";
+        :>> base = "G9";
+        :>> technology = BulbTechnology::halogen;
+        :>> power = 33 [W];
+        :>> luminousFlux = 460;
+        :>> colorTemperature = 2700 [K];
+    }
+
+    part def PhilipsE27Led13W :> Bulb {
+        doc /* Philips LED A60, 13 W (=100 W), 1521 lm, 2700 K, 105 mA, energy class E */
+        :>> product = "Philips LED 13W E27 (9290023068)";
+        :>> base = "E27";
+        :>> technology = BulbTechnology::led;
+        :>> power = 13 [W];
+        :>> luminousFlux = 1521;
+        :>> colorTemperature = 2700 [K];
+    }
+
+    part def OsramE27Led8W :> Bulb {
+        doc /* OSRAM LED STAR CLASSIC A60, 8 W (=60 W), 806 lm, 2700 K, Ra 80, not dimmable */
+        :>> product = "OSRAM LED STAR CLASSIC A60 8W";
+        :>> base = "E27";
+        :>> technology = BulbTechnology::led;
+        :>> power = 8 [W];
+        :>> luminousFlux = 806;
+        :>> colorTemperature = 2700 [K];
+    }
+
+    part def LedvanceGu10Led4W :> Bulb {
+        doc /* LEDVANCE (OSRAM) LED spot, GU10, 4.3 W, 350 lm, 600 cd, 36°, 2700 K, Ra 80, not dimmable */
+        :>> product = "LEDVANCE LED GU10 4.3W 36° (EAN 4058075521681)";
+        :>> base = "GU10";
+        :>> technology = BulbTechnology::led;
+        :>> power = 4.3 [W];
+        :>> luminousFlux = 350;
+        :>> colorTemperature = 2700 [K];
+    }
+
+    part def LedvanceGu53Led8W :> Bulb {
+        doc /* LEDVANCE (OSRAM) LED MR16, GU5.3, 12 V AC, 720 mA, 8 W, 2700 K, 36°, not dimmable, glass reflector */
+        comment /* Luminous flux hard to read on the bulb (looks like 621 lm); to be verified. */
+        :>> product = "LEDVANCE/OSRAM LED MR16 GU5.3 12V 8W";
+        :>> base = "GU5.3";
+        :>> technology = BulbTechnology::led;
+        :>> power = 8 [W];
+        :>> luminousFlux = 621;
+        :>> colorTemperature = 2700 [K];
+    }
+
+    part def StandartGu53Led4W :> Bulb {
+        doc /* Standart (Philips) LED MR16, GU5.3, 12 V AC, 550 mA, 4.5 W (=35 W), 345 lm, 2700 K, 36°, energy class G */
+        :>> product = "Standart LED MR16 GU5.3 4.5W (9290012109)";
+        :>> base = "GU5.3";
+        :>> technology = BulbTechnology::led;
+        :>> power = 4.5 [W];
+        :>> luminousFlux = 345;
+        :>> colorTemperature = 2700 [K];
+    }
+
+    part def SpareBulbBox {
+        doc /* Storage box with unused bulbs available as replacements. */
+        part bulbs : Bulb[0..*];
     }
 
     part def CableEnd :> ElectricalDevice {

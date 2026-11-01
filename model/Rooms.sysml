@@ -157,6 +157,79 @@ package Rooms {
 
         part bedroom : Room {
             doc /* Miegamasis */
+
+            // ----- Lighting -----
+
+            part L1 : Light {
+                doc /* Pagrindinis apšvietimas */
+                :>> label = "L1";
+                :>> bulbCount = 6;
+            }
+
+            part L2 : Light {
+                doc /* Sieninė skaitymo šviesa, lovos kairėje */
+                :>> label = "L2";
+                :>> bulbCount = 1;
+            }
+
+            part L3 : Light {
+                doc /* Sieninė skaitymo šviesa, lovos dešinėje */
+                :>> label = "L3";
+                :>> bulbCount = 1;
+            }
+
+            // ----- Outlets -----
+
+            part R1 : Outlet {
+                doc /* Prie kambario durų, po jungikliu S1 */
+                :>> label = "R1";
+            }
+
+            part R2 : Outlet {
+                doc /* Siena priešais lovą (kojūgalyje) */
+                :>> label = "R2";
+                :>> socketCount = 2;
+            }
+
+            part R3 : Outlet {
+                doc /* Lovos kairėje, po skaitymo lempa; viename blokelyje su S2 ir S3 */
+                :>> label = "R3";
+            }
+
+            part R4 : Outlet {
+                doc /* Lovos dešinėje, po skaitymo lempa; viename blokelyje su S4 */
+                :>> label = "R4";
+                :>> socketCount = 2;
+            }
+
+            // ----- Switches -----
+
+            // S1 and S2 both control L1, so they must be two-way switches
+            part S1 : Switch {
+                doc /* Prie durų, virš rozetės R1; pagrindinis apšvietimas */
+                :>> label = "S1";
+                :>> switchType = SwitchType::twoWay;
+                ref :>> controls = L1;
+            }
+
+            part S2 : Switch {
+                doc /* Lovos kairėje, blokelyje su R3; pagrindinis apšvietimas (dubliuoja S1) */
+                :>> label = "S2";
+                :>> switchType = SwitchType::twoWay;
+                ref :>> controls = L1;
+            }
+
+            part S3 : Switch {
+                doc /* Lovos kairėje, blokelyje su R3; skaitymo šviesa */
+                :>> label = "S3";
+                ref :>> controls = L2;
+            }
+
+            part S4 : Switch {
+                doc /* Lovos dešinėje, blokelyje su R4; skaitymo šviesa */
+                :>> label = "S4";
+                ref :>> controls = L3;
+            }
         }
 
         part hallway : Room {

@@ -22,7 +22,11 @@ package Rooms {
             }
 
             part L2 : Light {
-                doc /* Pagrindinis svetainės apšvietimas */
+                doc /* Pagrindinis svetainės apšvietimas. Šviesumą perjungia jungiklis:
+                     * kiekvienas OFF -> ON keičia režimą min -> medium -> max.
+                     * Jei šviestuvas įjungtas 5 min, režimas išsisaugo, ir tada
+                     * OFF -> ON įjungia išsaugotą režimą, o ne perjungia kitą.
+                     */
                 :>> label = "L2";
                 :>> bulbCount = 1;
             }
@@ -153,6 +157,63 @@ package Rooms {
 
         part kidsRoom : Room {
             doc /* Vaikų kambarys */
+
+            // ----- Lighting -----
+
+            part L1 : Light {
+                doc /* Pagrindinis apšvietimas */
+                :>> label = "L1";
+                :>> bulbCount = 6;
+            }
+
+            part L2 : Light {
+                doc /* Šviesa virš lovos (debesėlis) */
+                :>> label = "L2";
+                :>> bulbCount = 1;
+            }
+
+            // ----- Outlets -----
+
+            part R1 : Outlet {
+                doc /* Po debesėliu; viename blokelyje su S2 */
+                :>> label = "R1";
+            }
+
+            part R2 : Outlet {
+                doc /* Prie durų, palei žemę */
+                :>> label = "R2";
+            }
+
+            part R3 : Outlet {
+                doc /* Prie vaikų staliuko, palei žemę */
+                :>> label = "R3";
+            }
+
+            part R4 : Outlet {
+                doc /* Už knygų spintelės, palei žemę */
+                :>> label = "R4";
+                :>> socketCount = 2;
+            }
+
+            part R5 : Outlet {
+                doc /* Už knygų spintelės, virš R4 */
+                :>> label = "R5";
+                :>> socketCount = 2;
+            }
+
+            // ----- Switches -----
+
+            part S1 : Switch {
+                doc /* Prie durų; pagrindinis apšvietimas */
+                :>> label = "S1";
+                ref :>> controls = L1;
+            }
+
+            part S2 : Switch {
+                doc /* Po debesėliu, blokelyje su R1; debesėlio šviesa */
+                :>> label = "S2";
+                ref :>> controls = L2;
+            }
         }
 
         part bedroom : Room {
@@ -192,7 +253,7 @@ package Rooms {
             }
 
             part R3 : Outlet {
-                doc /* Lovos kairėje, po skaitymo lempa; viename blokelyje su S2 ir S3 */
+                doc /* Lovos kairėje, po skaitymo lempa; blokelis iš kairės į dešinę: R3, S2, S3 */
                 :>> label = "R3";
             }
 
@@ -204,7 +265,7 @@ package Rooms {
 
             // ----- Switches -----
 
-            // S1 and S2 both control L1, so they must be two-way switches
+            // S1 and S3 both control L1, so they must be two-way switches
             part S1 : Switch {
                 doc /* Prie durų, virš rozetės R1; pagrindinis apšvietimas */
                 :>> label = "S1";
@@ -213,16 +274,16 @@ package Rooms {
             }
 
             part S2 : Switch {
-                doc /* Lovos kairėje, blokelyje su R3; pagrindinis apšvietimas (dubliuoja S1) */
+                doc /* Lovos kairėje, blokelyje su R3 (vidurinis); skaitymo šviesa */
                 :>> label = "S2";
-                :>> switchType = SwitchType::twoWay;
-                ref :>> controls = L1;
+                ref :>> controls = L2;
             }
 
             part S3 : Switch {
-                doc /* Lovos kairėje, blokelyje su R3; skaitymo šviesa */
+                doc /* Lovos kairėje, blokelyje su R3 (dešinysis); pagrindinis apšvietimas (dubliuoja S1) */
                 :>> label = "S3";
-                ref :>> controls = L2;
+                :>> switchType = SwitchType::twoWay;
+                ref :>> controls = L1;
             }
 
             part S4 : Switch {
@@ -234,10 +295,155 @@ package Rooms {
 
         part hallway : Room {
             doc /* Koridorius */
+
+            // ----- Lighting -----
+
+            part L1 : Light {
+                doc /* Koridoriaus apšvietimas: 3 šviestuvai po 2 lizdus,
+                     * šiuo metu kiekviename įsukta po 1 lemputę.
+                     */
+                :>> label = "L1";
+                :>> bulbCount = 3;
+            }
+
+            // ----- Fixed appliances -----
+
+            part intercom : FixedAppliance { doc /* Domofonas */ }
+            part doorbell : FixedAppliance { doc /* Durų skambutis */ }
+
+            part modemBox : FixedAppliance {
+                doc /* Modemo dėžutė: sieninė dėžutė, kur ateina šviesolaidis ir
+                     * pajungtas modemas. Laidinis internetas iš jos paduodamas
+                     * į antrąjį modemą ir paskirstomas į kitus kambarius.
+                     */
+                comment /* Network distribution is intentionally not modelled. */
+            }
+
+            // ----- Outlets -----
+
+            part R1 : Outlet {
+                doc /* Šalia modemo dėžutės, už batų spintelės */
+                :>> label = "R1";
+            }
+
+            part R2 : Outlet {
+                doc /* Priešais vonią */
+                :>> label = "R2";
+            }
+
+            // ----- Switches -----
+
+            // S1 and S3 both control L1, so they must be two-way switches
+            part S1 : Switch {
+                doc /* Prie lauko durų; koridoriaus apšvietimas */
+                :>> label = "S1";
+                :>> switchType = SwitchType::twoWay;
+                ref :>> controls = L1;
+            }
+
+            part S2 : Switch {
+                doc /* Prie vonios durų; vonios pagrindinis apšvietimas */
+                :>> label = "S2";
+                ref :>> controls = apartment.bathroom.L1;
+            }
+
+            part T1 : Thermostat {
+                doc /* Vonios grindų šildymo termostatas, palei žemę po S2 */
+                :>> label = "T1";
+                ref :>> controls = apartment.bathroom.floorHeating;
+            }
+
+            // S3-S6: one 4-switch block opposite the bathroom, left to right
+            part S3 : Switch {
+                doc /* Priešais vonią, blokelio 1-as; koridoriaus apšvietimas */
+                :>> label = "S3";
+                :>> switchType = SwitchType::twoWay;
+                ref :>> controls = L1;
+            }
+
+            part S4 : Switch {
+                doc /* Priešais vonią, blokelio 2-as; neaišku, ką valdo */
+                comment /* To be verified: possibly the cable end X1 in the
+                         * living room bookshelf.
+                         */
+                :>> label = "S4";
+            }
+
+            part S5 : Switch {
+                doc /* Priešais vonią, blokelio 3-ias; virtuvės zonos apšvietimas */
+                :>> label = "S5";
+                ref :>> controls = apartment.livingKitchen.L3;
+            }
+
+            part S6 : Switch {
+                doc /* Priešais vonią, blokelio 4-as, dvigubas: kairė pusė - šviesa
+                     * virš valgomojo stalo, dešinė - pagrindinis svetainės apšvietimas
+                     */
+                :>> label = "S6";
+                :>> switchType = SwitchType::doubleGang;
+                ref :>> controls = (apartment.livingKitchen.L1, apartment.livingKitchen.L2);
+            }
         }
 
         part bathroom : Room {
             doc /* Vonia */
+
+            // ----- Lighting -----
+
+            part L1 : Light {
+                doc /* Pagrindinis apšvietimas */
+                :>> label = "L1";
+                :>> bulbCount = 4;
+            }
+
+            part L2 : Light {
+                doc /* Veidrodžio apšvietimas, LED juosta */
+                :>> label = "L2";
+            }
+
+            // ----- Fixed appliances -----
+
+            part floorHeating : FixedAppliance {
+                doc /* Grindinis šildymas */
+            }
+
+            part towelRail : FixedAppliance {
+                doc /* Elektrinis gyvatukas.
+                     * - valdomas mygtukais ant paties gyvatuko:
+                     * - režimai „visada įjungtas“ ir „įjungtas 2 h“, karštis 1-4.
+                     */
+            }
+
+            // ----- Plugged-in appliances -----
+
+            part washingMachine : PluggedAppliance { doc /* Skalbyklė */ }
+
+            // ----- Outlets -----
+
+            part R1 : Outlet {
+                doc /* Prie durų, už skalbyklės šono */
+                :>> label = "R1";
+            }
+
+            part R2 : Outlet {
+                doc /* Prie veidrodžio, su dangteliu (skutimosi mašinėlėms); viename blokelyje su S1 */
+                :>> label = "R2";
+                :>> isWaterproof = true;
+            }
+
+            part R3 : Outlet {
+                doc /* Už skalbyklės, palei žemę */
+                :>> label = "R3";
+                ref :>> pluggedIn = washingMachine;
+            }
+
+            // ----- Switches -----
+
+            part S1 : Switch {
+                doc /* Prie veidrodžio, blokelyje su R2; veidrodžio apšvietimas */
+                :>> label = "S1";
+                ref :>> controls = L2;
+            }
         }
 
         part balcony : Room {

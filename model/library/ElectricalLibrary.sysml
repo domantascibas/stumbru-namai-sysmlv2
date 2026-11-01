@@ -84,6 +84,10 @@ package ElectricalLibrary {
         ref part controls : Light[1..*];
     }
 
+    part def Thermostat :> ElectricalDevice {
+        ref part controls : FixedAppliance[1..*];
+    }
+
     part def FixedAppliance :> Load {
         doc /* Hard-wired (not via an outlet) appliance:
              * hob, oven, water heater, ventilation unit, floor heating...

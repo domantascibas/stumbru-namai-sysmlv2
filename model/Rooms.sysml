@@ -58,7 +58,7 @@ package Rooms {
             }
 
             part X1 : CableEnd {
-                doc /* Laidas knygų lentynoje, 230 V */
+                doc /* Laidas knygų lentynoje, 230 V; valdomas jungikliu S4 koridoriuje */
                 :>> label = "X1";
             }
 
@@ -77,11 +77,17 @@ package Rooms {
             part coffeeMachine : PluggedAppliance { doc /* Kavos aparatas */ }
             part tv : PluggedAppliance { doc /* Televizorius */ }
             part roomba : PluggedAppliance { doc /* Roomba */ }
-            part speaker : PluggedAppliance { doc /* Kolonėlė */ }
+            part speaker : PluggedAppliance { doc /* Marshall kolonėlė */ }
             part rpiServer : PluggedAppliance { doc /* Raspberry Pi serveris */ }
             part vinylPlayer : PluggedAppliance { doc /* Vinilų grotuvas */ }
             part modem2 : PluggedAppliance { doc /* Antras modemas */ }
-            part bookshelfLight : PluggedAppliance { doc /* Šviesa knygų spintoje */ }
+            part tvBox : PluggedAppliance { doc /* TV priedėlis */ }
+            part deskLamp : PluggedAppliance { doc /* Stalinė lemputė knygų spintoje */ }
+
+            part powerStrip1 : PowerStrip {
+                doc /* Prailgintuvas spintelėje po televizoriumi */
+                ref :>> pluggedIn = (tvBox, deskLamp);
+            }
 
             // ----- Outlets -----
 
@@ -117,27 +123,37 @@ package Rooms {
 
             part R5 : Outlet {
                 doc /* Spintelė po televizoriumi, už sporto stalčiaus */
-                comment /* To be clarified: some of roomba, speaker, rpiServer,
-                         * vinylPlayer are plugged in here.
-                         */
                 :>> label = "R5";
                 :>> socketCount = 3;
+                // left to right
+                ref :>> pluggedIn = (vinylPlayer, rpiServer, roomba);
             }
 
             part R6 : Outlet {
-                doc /* Spintelė po televizoriumi, už elektronikos stalčiaus */
-                comment /* To be clarified: some of roomba, tv, modem2,
-                         * bookshelfLight are plugged in here.
-                         */
+                doc /* Spintelė po televizoriumi, už elektronikos stalčiaus, viršutinis blokelis */
                 :>> label = "R6";
-                :>> socketCount = 4;
+                :>> socketCount = 2;
+                :>> hasDataSocket = true;
+                // left: power strip, right socket free
+                ref :>> pluggedIn = powerStrip1;
             }
 
             part R7 : Outlet {
-                doc /* Knygų spinta šalia televizoriaus */
-                comment /* To be clarified: what is plugged in here. */
+                doc /* Spintelė po televizoriumi, už elektronikos stalčiaus, apatinis blokelis (po R6) */
+                comment /* The data socket brings the internet from the first modem to modem2. */
                 :>> label = "R7";
                 :>> socketCount = 2;
+                :>> hasDataSocket = true;
+                // left to right
+                ref :>> pluggedIn = (tv, modem2);
+            }
+
+            part R8 : Outlet {
+                doc /* Knygų spinta šalia televizoriaus */
+                :>> label = "R8";
+                :>> socketCount = 2;
+                // left socket free, right: speaker
+                ref :>> pluggedIn = speaker;
             }
 
             // ----- Switches -----
@@ -172,6 +188,10 @@ package Rooms {
                 :>> bulbCount = 1;
             }
 
+            // ----- Plugged-in appliances -----
+
+            part nas : PluggedAppliance { doc /* NAS serveris */ }
+
             // ----- Outlets -----
 
             part R1 : Outlet {
@@ -199,6 +219,7 @@ package Rooms {
                 doc /* Už knygų spintelės, virš R4 */
                 :>> label = "R5";
                 :>> socketCount = 2;
+                ref :>> pluggedIn = nas;
             }
 
             // ----- Switches -----
@@ -362,11 +383,9 @@ package Rooms {
             }
 
             part S4 : Switch {
-                doc /* Priešais vonią, blokelio 2-as; neaišku, ką valdo */
-                comment /* To be verified: possibly the cable end X1 in the
-                         * living room bookshelf.
-                         */
+                doc /* Priešais vonią, blokelio 2-as; laidas X1 svetainės knygų lentynoje */
                 :>> label = "S4";
+                ref :>> controls = apartment.livingKitchen.X1;
             }
 
             part S5 : Switch {

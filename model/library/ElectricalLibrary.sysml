@@ -68,7 +68,8 @@ package ElectricalLibrary {
         attribute socketCount : Natural default = 1;
         attribute hasEarth : Boolean default = true;
         attribute isWaterproof : Boolean default = false;   // IP44+
-        ref part pluggedIn : PluggedAppliance[0..*];   // to be filled in later
+        attribute hasDataSocket : Boolean default = false;  // RJ45 in the same frame
+        ref part pluggedIn : PluggedAppliance[0..*];
     }
 
     part def Light :> Load {
@@ -81,7 +82,7 @@ package ElectricalLibrary {
 
     part def Switch :> ElectricalDevice {
         attribute switchType : SwitchType default = SwitchType::oneWay;
-        ref part controls : Light[1..*];
+        ref part controls : ElectricalDevice[1..*];   // usually a Light, but may be e.g. a CableEnd
     }
 
     part def Thermostat :> ElectricalDevice {
@@ -97,6 +98,12 @@ package ElectricalLibrary {
 
     part def PluggedAppliance :> Load {
         doc /* Appliance plugged into an outlet (fridge, TV, washing machine...). */
+    }
+
+    part def PowerStrip :> PluggedAppliance {
+        doc /* Extension cord / power strip plugged into an outlet. */
+        attribute socketCount : Natural;
+        ref part pluggedIn : PluggedAppliance[0..*];
     }
 
     // ---------------------------------------------------------------

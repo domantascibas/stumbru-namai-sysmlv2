@@ -19,6 +19,7 @@ package Rooms {
                 doc /* Šviesa virš valgomojo stalo */
                 :>> label = "L1";
                 :>> bulbSocketCount = 1;
+                part ledBulbs : OsramE27LedFilamentGlobe5W[1] :> bulbs;
             }
 
             part L2 : Light {
@@ -27,8 +28,14 @@ package Rooms {
                      * Jei šviestuvas įjungtas 5 min, režimas išsisaugo, ir tada
                      * OFF -> ON įjungia išsaugotą režimą, o ne perjungia kitą.
                      */
+                comment /* Integrated luminaire with a non-user-replaceable LED module (no bulb sockets).
+                         * Rating plate: 220-240 V, 0.11 A, 22 W, PF 0.9, 2000 lm, 2700 K, class II;
+                         * LED module 929002669, 2600 lm.
+                         */
                 :>> label = "L2";
-                :>> bulbSocketCount = 1;
+                :>> bulbSocketCount = 0;
+                :>> product = "Philips LED Ceiling Luminaire 929002669";
+                :>> power = 22 [W];
             }
 
             part L3 : Light {
@@ -39,8 +46,13 @@ package Rooms {
             }
 
             part L4 : Light {
-                doc /* Virtuvės stalviršio apšvietimas, LED juosta */
+                doc /* Virtuvės stalviršio apšvietimas, LED juosta, 3 m, aliuminio profilyje su sklaidytuvu */
+                comment /* Cool white light. Power unknown: typical strips are 5-15 W/m, i.e. ~15-45 W
+                         * for 3 m. Exact value from the LED driver label (driver location unknown,
+                         * probably in a wall cabinet).
+                         */
                 :>> label = "L4";
+                :>> bulbSocketCount = 0;
             }
 
             // ----- Fixed appliances -----
@@ -62,7 +74,13 @@ package Rooms {
             }
 
             part hob : FixedAppliance {
-                doc /* Kaitlentė */
+                doc /* Indukcinė kaitlentė, 60 cm, 4 zonos, slankiklis 0-9 + P (boost) */
+                comment /* Rating plate (made April 2023): 220-240 V~ / 380-415 V 3N~, 50-60 Hz, max 7000 W.
+                         * Induction hobs of this size usually have two power units (~3.5 kW each),
+                         * i.e. they load two of the three phases; which ones is unknown.
+                         */
+                :>> product = "Samsung NZ64T3707A1";
+                :>> power = 7000 [W];
                 :>> phases = 3;
             }
 
@@ -94,7 +112,11 @@ package Rooms {
                 doc /* Orkaitė */
                 comment /* On F7 together with the hob (confirmed by switching F7 off).
                          * To be verified behind the cabinet: plugged into R4 or hard-wired.
+                         * Single-phase (220-240 V), so it loads only one of F7's three phases;
+                         * which one is unknown.
                          */
+                :>> product = "Bosch HBA23B122S";
+                :>> power = 3500 [W];   // rating plate: 220-240 V, 3.5 kW
             }
             part kettle : PluggedAppliance {
                 doc /* Arbatinukas */
@@ -232,8 +254,14 @@ package Rooms {
 
             part L2 : Light {
                 doc /* Šviesa virš lovos (debesėlis) */
+                comment /* IKEA lamp with a 4 W LED, fed by a built-in 24 V LED driver
+                         * RECOM RACV04-24 (in 100-240 V, 0.10 A, PF 0.40; out 24 V DC CV, max 170 mA / 4 W, SELV).
+                         * No mains bulb socket.
+                         */
                 :>> label = "L2";
-                :>> bulbSocketCount = 1;
+                :>> bulbSocketCount = 0;
+                :>> product = "IKEA LED lamp (driver RECOM RACV04-24)";
+                :>> power = 4 [W];
             }
 
             // ----- Plugged-in appliances -----
@@ -488,8 +516,12 @@ package Rooms {
             }
 
             part L2 : Light {
-                doc /* Veidrodžio apšvietimas, LED juosta */
+                doc /* Veidrodžio apšvietimas, LED juosta, 52 cm, profilyje virš veidrodžio */
+                comment /* Cool white light. Power unknown: typical strips are 5-15 W/m, i.e. ~3-8 W
+                         * for 0.52 m. Exact value from the LED driver label (probably behind the mirror).
+                         */
                 :>> label = "L2";
+                :>> bulbSocketCount = 0;
             }
 
             // ----- Fixed appliances -----
@@ -556,7 +588,10 @@ package Rooms {
 
             part L1 : Light {
                 doc /* Lauko lempa */
+                comment /* Fixture label: E27, max 60 W. */
                 :>> label = "L1";
+                :>> bulbSocketCount = 1;
+                part halogenBulbs : VagnerE27Halogen28W[1] :> bulbs;
             }
         }
 

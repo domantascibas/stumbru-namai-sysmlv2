@@ -180,6 +180,28 @@ package ElectricalLibrary {
         :>> colorTemperature = 2700 [K];
     }
 
+    part def OsramE27LedFilamentGlobe5W :> Bulb {
+        doc /* OSRAM (LEDVANCE) LED filament globe, gold/amber glass, spiral filament,
+             * 4.8 W, 400 lm, 2200 K, 38 mA */
+        :>> product = "OSRAM LED filament globe 4.8W (AC41919)";
+        :>> base = "E27";
+        :>> technology = BulbTechnology::led;
+        :>> power = 4.8 [W];
+        :>> luminousFlux = 400;
+        :>> colorTemperature = 2200 [K];
+    }
+
+    part def VagnerE27Halogen28W :> Bulb {
+        doc /* Vagner SDH halogen (eco halogen capsule in a clear A-shape bulb), E27, 230 V, 28 W,
+             * 375 lm, 2800 K, made 06/2014 */
+        :>> product = "Vagner SDH halogen 28W E27";
+        :>> base = "E27";
+        :>> technology = BulbTechnology::halogen;
+        :>> power = 28 [W];
+        :>> luminousFlux = 375;
+        :>> colorTemperature = 2800 [K];
+    }
+
     part def SpareBulbBox {
         doc /* Storage box with unused bulbs available as replacements. */
         part bulbs : Bulb[0..*];

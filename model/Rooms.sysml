@@ -9,52 +9,29 @@ package Rooms {
 
     part apartment {
 
-        part hallway : Room {
-            part L1 : Light { :>> label = "L1"; }
-            part S1 : Switch {
-                :>> label = "S1";
-                ref :>> controls = L1;
-            }
-            part R1 : Outlet { :>> label = "R1"; }
+        // Living room and kitchen are one open space
+        part livingKitchen : Room {
+            doc /* Svetainė + virtuvė */
         }
 
-        part kitchen : Room {
-            part L1 : Light { :>> label = "L1"; }
-            part S1 : Switch {
-                :>> label = "S1";
-                ref :>> controls = L1;
-            }
-            part R1 : Outlet { :>> label = "R1"; :>> socketCount = 2; }
-            part R2 : Outlet { :>> label = "R2"; }
-            part hob : FixedAppliance { :>> label = "Hob"; }
-        }
-
-        part livingRoom : Room {
-            part L1 : Light { :>> label = "L1"; }
-            part S1 : Switch {
-                :>> label = "S1";
-                ref :>> controls = L1;
-            }
-            part R1 : Outlet { :>> label = "R1"; }
-            part R2 : Outlet { :>> label = "R2"; }
+        part kidsRoom : Room {
+            doc /* Vaikų kambarys */
         }
 
         part bedroom : Room {
-            part L1 : Light { :>> label = "L1"; }
-            part S1 : Switch {
-                :>> label = "S1";
-                ref :>> controls = L1;
-            }
-            part R1 : Outlet { :>> label = "R1"; }
+            doc /* Miegamasis */
+        }
+
+        part hallway : Room {
+            doc /* Koridorius */
         }
 
         part bathroom : Room {
-            part L1 : Light { :>> label = "L1"; }
-            part S1 : Switch {
-                :>> label = "S1";
-                ref :>> controls = L1;
-            }
-            part R1 : Outlet { :>> label = "R1"; :>> isWaterproof = true; }
+            doc /* Vonia */
+        }
+
+        part balcony : Room {
+            doc /* Balkonas */
         }
     }
 }

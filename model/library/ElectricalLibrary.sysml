@@ -95,6 +95,7 @@ package ElectricalLibrary {
     abstract part def ProtectiveDevice {
         attribute label : String;   // label in the panel, e.g. "Q1", "F1"
         attribute name : String;    // text on the panel, e.g. "Kitchen outlets"
+        attribute product : String; // manufacturer series, e.g. "ETI ETIMAT 6"
         attribute ratedCurrent : ElectricCurrentValue;
         attribute poles : Natural default = 1;
     }
@@ -110,6 +111,7 @@ package ElectricalLibrary {
     part def CircuitBreaker :> ProtectiveDevice {
         doc /* One circuit breaker = one circuit. */
         attribute tripCurve : TripCurve default = TripCurve::B;
+        attribute breakingCapacity : ElectricCurrentValue;   // e.g. 6000 [A]
         attribute phase : Phase default = Phase::L1;
         attribute cableCrossSectionMm2 : Real;   // e.g. 1.5, 2.5
         ref part feeds : ElectricalDevice[0..*];

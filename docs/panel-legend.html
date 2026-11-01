@@ -8,12 +8,12 @@
 <style>
   @page { size: A4 landscape; margin: 10mm; }
   * { box-sizing: border-box; }
-  body { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 10pt; color: #000; margin: 0; }
+  body { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 9pt; color: #000; margin: 0; }
   h1 { font-size: 15pt; margin: 0 0 1mm; }
-  .sub { font-size: 9pt; color: #444; margin-bottom: 4mm; }
+  .sub { font-size: 9pt; color: #444; margin-bottom: 3mm; }
 
   /* Front view of the panel, 1 module = 9 mm here (half scale) */
-  .front { display: flex; flex-direction: column; gap: 2mm; margin-bottom: 4mm; }
+  .front { display: flex; flex-direction: column; gap: 2mm; margin-bottom: 3mm; }
   .row { display: flex; gap: 0; }
   .row .tag { width: 18mm; font-size: 8pt; color: #555; align-self: center; }
   .dev { border: 0.3mm solid #000; height: 11mm; display: flex; flex-direction: column;
@@ -24,7 +24,7 @@
   .rcd { background: #eee; }
 
   table { width: 100%; border-collapse: collapse; }
-  th, td { border: 0.3mm solid #000; padding: 1.2mm 2mm; text-align: left; vertical-align: top; }
+  th, td { border: 0.3mm solid #000; padding: 0.7mm 2mm; text-align: left; vertical-align: top; }
   th { background: #ddd; font-size: 9pt; }
   td.id { font-weight: bold; font-size: 12pt; width: 13mm; text-align: center; }
   td.rt { width: 22mm; white-space: nowrap; }
@@ -43,7 +43,7 @@
 <body>
 
 <h1>Elektros skydelis – grandinių sąrašas</h1>
-<div class="sub">Žymėjimas pagal IEC/EN 81346-2: Q – įvadinis jungiklis, F – apsaugos aparatas (nuotėkio relė, automatinis jungiklis). Atnaujinta 2026-11-01.</div>
+<div class="sub">Žymėjimas pagal IEC/EN 81346-2: Q – įvadinis jungiklis, F – apsaugos aparatas (nuotėkio relė, automatinis jungiklis). Fazės: L1 = A, L2 = B, L3 = C. Atnaujinta 2026-11-01.</div>
 
 <div class="front">
   <div class="row">
@@ -70,36 +70,36 @@
 
 <table>
   <thead>
-    <tr><th>ID</th><th>Aparatas</th><th>Pavadinimas</th><th>Ką maitina</th></tr>
+    <tr><th>ID</th><th>Aparatas / fazė</th><th>Pavadinimas</th><th>Ką maitina</th></tr>
   </thead>
   <tbody>
-    <tr><td class="id">Q1</td><td class="rt">C25, 3P</td><td class="nm">Įvadas</td>
+    <tr><td class="id">Q1</td><td class="rt">C25, 3P<br><small>L1+L2+L3</small></td><td class="nm">Įvadas</td>
         <td>Išjungia visą butą.</td></tr>
-    <tr><td class="id">F1</td><td class="rt">25 A, 30 mA, AC</td><td class="nm">Nuotėkio relė 30 mA</td>
+    <tr><td class="id">F1</td><td class="rt">25 A, 30 mA, AC<br><small>L1+L2+L3</small></td><td class="nm">Nuotėkio relė 30 mA</td>
         <td>Apsaugo visas grandines F2–F13. Kas kelis mėnesius paspausti mygtuką „T“ – turi išsijungti.</td></tr>
-    <tr><td class="id">F2</td><td class="rt">C16</td><td class="nm">Vaikų k. ir koridoriaus rozetės</td>
+    <tr><td class="id">F2</td><td class="rt">C16<br><small>L1</small></td><td class="nm">Vaikų k. ir koridoriaus rozetės</td>
         <td>Vaikų k.: visos rozetės (NAS), debesėlio šviesa virš lovos. Koridorius: rozetės prie modemo dėžutės ir priešais vonią.</td></tr>
-    <tr><td class="id">F3</td><td class="rt">C16</td><td class="nm">Miegamojo ir svetainės rozetės</td>
+    <tr><td class="id">F3</td><td class="rt">C16<br><small>L1</small></td><td class="nm">Miegamojo ir svetainės rozetės</td>
         <td>Miegamasis: visos rozetės, skaitymo lempos prie lovos. Svetainė: rozetės už sofos, spintelėje po TV (TV, RPi, Roomba, antras modemas), knygų spintoje (kolonėlė).</td></tr>
-    <tr><td class="id">F4</td><td class="rt">B10</td><td class="nm">Vonia: veidrodis</td>
+    <tr><td class="id">F4</td><td class="rt">B10<br><small>L3</small></td><td class="nm">Vonia: veidrodis</td>
         <td>Veidrodžio LED apšvietimas, rozetė prie veidrodžio (skutimosi).</td></tr>
-    <tr><td class="id">F5</td><td class="rt">C16</td><td class="nm">Vonia: gyvatukas</td>
+    <tr><td class="id">F5</td><td class="rt">C16<br><small>L3</small></td><td class="nm">Vonia: gyvatukas</td>
         <td>Elektrinis rankšluosčių džiovintuvas.</td></tr>
-    <tr><td class="id">F6</td><td class="rt">C16</td><td class="nm">Vonia: grindų šildymas</td>
+    <tr><td class="id">F6</td><td class="rt">C16<br><small>L3</small></td><td class="nm">Vonia: grindų šildymas</td>
         <td>Grindinis šildymas (termostatas koridoriuje).</td></tr>
-    <tr><td class="id">F7</td><td class="rt">C16, 3P</td><td class="nm">Kaitlentė ir orkaitė</td>
+    <tr><td class="id">F7</td><td class="rt">C16, 3P<br><small>L1+L2+L3</small></td><td class="nm">Kaitlentė ir orkaitė</td>
         <td>Kaitlentė, orkaitė.</td></tr>
-    <tr><td class="id">F8</td><td class="rt">C16</td><td class="nm">Virtuvė: indaplovė ir stalviršis</td>
+    <tr><td class="id">F8</td><td class="rt">C16<br><small>L2</small></td><td class="nm">Virtuvė: indaplovė ir stalviršis</td>
         <td>Indaplovė, rozetės prie kriauklės (virdulys) ir prie kavos aparato, stalviršio LED juosta.</td></tr>
-    <tr><td class="id">F9</td><td class="rt">C16</td><td class="nm">Vonia: skalbyklė</td>
+    <tr><td class="id">F9</td><td class="rt">C16<br><small>L2</small></td><td class="nm">Vonia: skalbyklė</td>
         <td>Skalbyklė, rozetė prie durų.</td></tr>
-    <tr><td class="id">F10</td><td class="rt">C16</td><td class="nm">Virtuvė: šaldytuvas ir mikrobangė</td>
+    <tr><td class="id">F10</td><td class="rt">C16<br><small>L2</small></td><td class="nm">Virtuvė: šaldytuvas ir mikrobangė</td>
         <td>Šaldytuvas, mikrobangė, gartraukis.</td></tr>
-    <tr><td class="id">F11</td><td class="rt">C10</td><td class="nm">Apšvietimas (be vonios)</td>
+    <tr><td class="id">F11</td><td class="rt">C10<br><small>L1</small></td><td class="nm">Apšvietimas (be vonios)</td>
         <td>Pagrindinis apšvietimas: svetainė, virtuvė, valgomasis, miegamasis, vaikų k., koridorius, balkonas; laidas knygų lentynoje (jungiklis koridoriuje).</td></tr>
-    <tr><td class="id">F12</td><td class="rt">C10</td><td class="nm">Vonia: apšvietimas</td>
+    <tr><td class="id">F12</td><td class="rt">C10<br><small>L3</small></td><td class="nm">Vonia: apšvietimas</td>
         <td>Vonios pagrindinis (lubų) apšvietimas.</td></tr>
-    <tr><td class="id">F13</td><td class="rt">C10</td><td class="nm">Modemas</td>
+    <tr><td class="id">F13</td><td class="rt">C10<br><small>L1</small></td><td class="nm">Modemas</td>
         <td>Modemo dėžutė koridoriuje (internetas).</td></tr>
   </tbody>
 </table>

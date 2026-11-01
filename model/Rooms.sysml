@@ -47,9 +47,17 @@ package Rooms {
 
             part hood : FixedAppliance {
                 doc /* Gartraukis */
+                comment /* Rating plate: motor 1x150 W, lights max 2x28 W, total 206 W.
+                         * `power` here is the motor only; the light is counted separately.
+                         */
+                :>> product = "Elica ELITE14 LUX WH/A/60";
+                :>> power = 150 [W];
 
                 part light : Light {
                     doc /* Gartraukio apšvietimas, valdomas gartraukio mygtukais */
+                    comment /* Rating plate allows max 28 W per socket. */
+                    :>> bulbSocketCount = 2;
+                    part ledBulbs : CozyHomeE14LedFilament4W[2] :> bulbs;
                 }
             }
 
@@ -65,17 +73,39 @@ package Rooms {
 
             // ----- Plugged-in appliances -----
 
-            part fridge : PluggedAppliance { doc /* Šaldytuvas */ }
-            part microwave : PluggedAppliance { doc /* Mikrobangė */ }
-            part dishwasher : PluggedAppliance { doc /* Indaplovė */ }
+            part fridge : PluggedAppliance {
+                doc /* Šaldytuvas */
+                comment /* Rating plate: 230-240 V, 0.8 A (~185 W); defrost heater 113 W; 305 l, class A+. */
+                :>> product = "Electrolux ENN3153AOW";
+                :>> power = 185 [W];
+            }
+            part microwave : PluggedAppliance {
+                doc /* Mikrobangė su griliu */
+                comment /* Rating plate: microwave input 1150 W (output 700 W), grill 1000 W, max input 1150 W. */
+                :>> product = "Candy CMG 7417 DS";
+                :>> power = 1150 [W];
+            }
+            part dishwasher : PluggedAppliance {
+                doc /* Indaplovė, 45 cm, integruota */
+                :>> product = "Bosch SPV69T40EU/23 SuperSilence";
+                :>> power = 2400 [W];   // rating plate: 2.0-2.4 kW, fuse 10/16 A
+            }
             part oven : PluggedAppliance {
                 doc /* Orkaitė */
                 comment /* On F7 together with the hob (confirmed by switching F7 off).
                          * To be verified behind the cabinet: plugged into R4 or hard-wired.
                          */
             }
-            part kettle : PluggedAppliance { doc /* Arbatinukas */ }
-            part coffeeMachine : PluggedAppliance { doc /* Kavos aparatas */ }
+            part kettle : PluggedAppliance {
+                doc /* Arbatinukas */
+                :>> product = "Philips HD9321/20";
+                :>> power = 2200 [W];   // rating plate: 1850-2200 W
+            }
+            part coffeeMachine : PluggedAppliance {
+                doc /* Kavos aparatas */
+                :>> product = "De'Longhi Dinamica ECAM350.15.B";
+                :>> power = 1450 [W];   // rating plate: 220-240 V, 1450 W, 15 bar
+            }
             part tv : PluggedAppliance { doc /* Televizorius */ }
             part roomba : PluggedAppliance { doc /* Roomba */ }
             part speaker : PluggedAppliance { doc /* Marshall kolonėlė */ }
@@ -466,6 +496,10 @@ package Rooms {
 
             part floorHeating : FixedAppliance {
                 doc /* Grindinis šildymas */
+                comment /* Power unknown: no marking on the thermostat. To be measured with the
+                         * electricity meter (only F6 on) or estimated from the heated floor area
+                         * (typically 120-150 W/m2 in bathrooms).
+                         */
             }
 
             part towelRail : FixedAppliance {
@@ -473,11 +507,21 @@ package Rooms {
                      * - valdomas mygtukais ant paties gyvatuko:
                      * - režimai „visada įjungtas“ ir „įjungtas 2 h“, karštis 1-4.
                      */
+                comment /* Heating element "Square Line" KTX-2 MS (230 V, 50 Hz, IPx4). The label gives
+                         * a power range ending at 1000 W, so 1000 W is the upper bound; the actual
+                         * element may be weaker. To be measured with the electricity meter (only F5 on).
+                         */
+                :>> product = "Square Line KTX-2 MS heating element";
+                :>> power = 1000 [W];
             }
 
             // ----- Plugged-in appliances -----
 
-            part washingMachine : PluggedAppliance { doc /* Skalbyklė */ }
+            part washingMachine : PluggedAppliance {
+                doc /* Skalbyklė su džiovinimu, 9 kg skalbimas / 6 kg džiovinimas */
+                :>> product = "Samsung WD90T984ASH/S7";
+                :>> power = 2300 [W];   // rating plate: 2000-2300 W
+            }
 
             // ----- Outlets -----
 

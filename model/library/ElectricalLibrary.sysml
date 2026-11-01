@@ -68,7 +68,8 @@ package ElectricalLibrary {
 
     abstract part def Load :> ElectricalDevice {
         doc /* A device that consumes power itself. */
-        attribute power : PowerValue;
+        attribute product : String;     // manufacturer and model
+        attribute power : PowerValue;   // rated (maximum) power from the rating plate
     }
 
     part def Outlet :> ElectricalDevice {
@@ -166,6 +167,16 @@ package ElectricalLibrary {
         :>> technology = BulbTechnology::led;
         :>> power = 4.5 [W];
         :>> luminousFlux = 345;
+        :>> colorTemperature = 2700 [K];
+    }
+
+    part def CozyHomeE14LedFilament4W :> Bulb {
+        doc /* Cozy Home LED filament candle C35, clear, E14, 4.2 W, 470 lm, 25 mA, 2700 K */
+        :>> product = "Cozy Home C35F7-CL-D-4.2W";
+        :>> base = "E14";
+        :>> technology = BulbTechnology::led;
+        :>> power = 4.2 [W];
+        :>> luminousFlux = 470;
         :>> colorTemperature = 2700 [K];
     }
 

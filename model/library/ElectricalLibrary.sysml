@@ -71,7 +71,13 @@ package ElectricalLibrary {
         ref part pluggedIn : PluggedAppliance[0..*];   // to be filled in later
     }
 
-    part def Light :> Load;
+    part def Light :> Load {
+        attribute bulbCount : Natural default = 1;
+    }
+
+    part def CableEnd :> ElectricalDevice {
+        doc /* Live cable left in the wall/furniture with nothing connected yet. */
+    }
 
     part def Switch :> ElectricalDevice {
         attribute switchType : SwitchType default = SwitchType::oneWay;
@@ -82,6 +88,7 @@ package ElectricalLibrary {
         doc /* Hard-wired (not via an outlet) appliance:
              * hob, oven, water heater, ventilation unit, floor heating...
              */
+        attribute phases : Natural default = 1;
     }
 
     part def PluggedAppliance :> Load {

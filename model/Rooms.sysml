@@ -69,8 +69,8 @@ package Rooms {
             part dishwasher : PluggedAppliance { doc /* Indaplovė */ }
             part oven : PluggedAppliance {
                 doc /* Orkaitė */
-                comment /* To be verified: plugged into R1, or hard-wired to QF7
-                         * together with the hob (panel chart says "oven + hob").
+                comment /* On QF7 together with the hob (confirmed by switching QF7 off).
+                         * To be verified behind the cabinet: plugged into R4 or hard-wired.
                          */
             }
             part kettle : PluggedAppliance { doc /* Arbatinukas */ }
@@ -91,66 +91,81 @@ package Rooms {
 
             // ----- Outlets -----
 
+            // R1-R4 are hidden behind a kitchen cabinet; socket counts not checked yet
             part R1 : Outlet {
-                doc /* Virtuvės zona, po spintelėmis */
-                comment /* To be verified (hidden behind a cabinet): one 4-socket
-                         * block or 4 separate outlets.
-                         */
+                doc /* Virtuvės zona, po spintelėmis; šaldytuvas */
                 :>> label = "R1";
-                :>> socketCount = 4;
-                ref :>> pluggedIn = (fridge, microwave, dishwasher, oven);
+                ref :>> pluggedIn = fridge;
             }
 
             part R2 : Outlet {
-                doc /* Prie kriauklės */
+                doc /* Virtuvės zona, po spintelėmis; mikrobangė */
                 :>> label = "R2";
+                ref :>> pluggedIn = microwave;
+            }
+
+            part R3 : Outlet {
+                doc /* Virtuvės zona, po spintelėmis; indaplovė */
+                :>> label = "R3";
+                ref :>> pluggedIn = dishwasher;
+            }
+
+            part R4 : Outlet {
+                doc /* Virtuvės zona, po spintelėmis; orkaitė */
+                :>> label = "R4";
+                ref :>> pluggedIn = oven;
+            }
+
+            part R5 : Outlet {
+                doc /* Prie kriauklės */
+                :>> label = "R5";
                 :>> socketCount = 2;
                 ref :>> pluggedIn = kettle;
             }
 
-            part R3 : Outlet {
+            part R6 : Outlet {
                 doc /* Prie kavos aparato */
-                :>> label = "R3";
+                :>> label = "R6";
                 :>> socketCount = 2;
                 ref :>> pluggedIn = coffeeMachine;
             }
 
-            part R4 : Outlet {
+            part R7 : Outlet {
                 doc /* Už sofos, telefono / nešiojamo kompiuterio pakrovikliams */
-                :>> label = "R4";
+                :>> label = "R7";
                 :>> socketCount = 2;
             }
 
-            part R5 : Outlet {
+            part R8 : Outlet {
                 doc /* Spintelė po televizoriumi, už sporto stalčiaus */
-                :>> label = "R5";
+                :>> label = "R8";
                 :>> socketCount = 3;
                 // left to right
                 ref :>> pluggedIn = (vinylPlayer, rpiServer, roomba);
             }
 
-            part R6 : Outlet {
+            part R9 : Outlet {
                 doc /* Spintelė po televizoriumi, už elektronikos stalčiaus, viršutinis blokelis */
-                :>> label = "R6";
+                :>> label = "R9";
                 :>> socketCount = 2;
                 :>> hasDataSocket = true;
                 // left: power strip, right socket free
                 ref :>> pluggedIn = powerStrip1;
             }
 
-            part R7 : Outlet {
-                doc /* Spintelė po televizoriumi, už elektronikos stalčiaus, apatinis blokelis (po R6) */
+            part R10 : Outlet {
+                doc /* Spintelė po televizoriumi, už elektronikos stalčiaus, apatinis blokelis (po R9) */
                 comment /* The data socket brings the internet from the first modem to modem2. */
-                :>> label = "R7";
+                :>> label = "R10";
                 :>> socketCount = 2;
                 :>> hasDataSocket = true;
                 // left to right
                 ref :>> pluggedIn = (tv, modem2);
             }
 
-            part R8 : Outlet {
+            part R11 : Outlet {
                 doc /* Knygų spinta šalia televizoriaus */
-                :>> label = "R8";
+                :>> label = "R11";
                 :>> socketCount = 2;
                 // left socket free, right: speaker
                 ref :>> pluggedIn = speaker;
@@ -329,8 +344,19 @@ package Rooms {
 
             // ----- Fixed appliances -----
 
-            part intercom : FixedAppliance { doc /* Domofonas */ }
-            part doorbell : FixedAppliance { doc /* Durų skambutis */ }
+            part intercom : FixedAppliance {
+                doc /* Domofonas */
+                comment /* Not fed from the apartment panel: powered by the building's
+                         * intercom system.
+                         */
+            }
+
+            part doorbell : FixedAppliance {
+                doc /* Durų skambutis */
+                comment /* To be verified: no breaker found during the circuit check
+                         * (not tested: would wake the kids); possibly battery or building powered.
+                         */
+            }
 
             part modemBox : FixedAppliance {
                 doc /* Modemo dėžutė: sieninė dėžutė, kur ateina šviesolaidis ir

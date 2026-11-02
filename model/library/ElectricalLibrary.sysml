@@ -22,6 +22,14 @@ package ElectricalLibrary {
         attribute ratedCurrent :> ISQBase::electricCurrent;
     }
 
+    // Reusable typed interface for power connections
+    interface def Wired {
+        end port supply : EnergyPort;
+        end port consume : ~EnergyPort;
+        flow of ElectricalPower
+            from supply.electricalEnergy to consume.electricalEnergy;
+    }
+
     // ---------------------------------------------------------------
     // Enumerations
     // ---------------------------------------------------------------
@@ -101,6 +109,11 @@ package ElectricalLibrary {
         // in the roll-up; the viewer flags such devices.
         attribute power :> ISQElectromagnetism::electricPower default = 0 [SI::W];
         attribute :>> connectedLoad default = power;
+        
+        // Consumer port for power input (book pattern: supplier perspective)
+        port plug : ~EnergyPort {
+            attribute :>> nominalVoltage = 230 [SI::V];
+        }
     }
 
     part def Outlet :> ElectricalDevice {
@@ -109,7 +122,12 @@ package ElectricalLibrary {
         attribute isWaterproof : Boolean default = false;   // IP44+
         attribute hasDataSocket : Boolean default = false;  // RJ45 in the same frame
         ref part pluggedIn : PluggedAppliance[0..*] default = ();
-        attribute :>> connectedLoad default = RealFunctions::sum(pluggedIn.connectedLoad);
+        attribute connectedLoad :> ISQElectromagnetism::electricPower default = RealFunctions::sum(pluggedIn.connectedLoad);
+        
+        // Supplier port for power output (book pattern: supplier perspective)
+        port plugPoint : EnergyPort {
+            attribute :>> nominalVoltage = 230 [SI::V];
+        }
     }
 
     part def Light :> Load {
@@ -140,9 +158,9 @@ package ElectricalLibrary {
         :>> product = "OKKO TP-G9";
         :>> base = "G9";
         :>> technology = BulbTechnology::led;
-        :>> power = 4 [W];
+        :>> power = 4 [SI::W];
         :>> luminousFlux = 300;
-        :>> colorTemperature = 3000 [K];
+        :>> colorTemperature = 3000 [SI::K];
     }
 
     part def OsramG9Halogen33W :> Bulb {
@@ -150,9 +168,9 @@ package ElectricalLibrary {
         :>> product = "OSRAM HALOPIN G9 33W";
         :>> base = "G9";
         :>> technology = BulbTechnology::halogen;
-        :>> power = 33 [W];
+        :>> power = 33 [SI::W];
         :>> luminousFlux = 460;
-        :>> colorTemperature = 2700 [K];
+        :>> colorTemperature = 2700 [SI::K];
     }
 
     part def PhilipsE27Led13W :> Bulb {
@@ -160,9 +178,9 @@ package ElectricalLibrary {
         :>> product = "Philips LED 13W E27 (9290023068)";
         :>> base = "E27";
         :>> technology = BulbTechnology::led;
-        :>> power = 13 [W];
+        :>> power = 13 [SI::W];
         :>> luminousFlux = 1521;
-        :>> colorTemperature = 2700 [K];
+        :>> colorTemperature = 2700 [SI::K];
     }
 
     part def OsramE27Led8W :> Bulb {
@@ -170,9 +188,9 @@ package ElectricalLibrary {
         :>> product = "OSRAM LED STAR CLASSIC A60 8W";
         :>> base = "E27";
         :>> technology = BulbTechnology::led;
-        :>> power = 8 [W];
+        :>> power = 8 [SI::W];
         :>> luminousFlux = 806;
-        :>> colorTemperature = 2700 [K];
+        :>> colorTemperature = 2700 [SI::K];
     }
 
     part def LedvanceGu10Led4W :> Bulb {
@@ -180,9 +198,9 @@ package ElectricalLibrary {
         :>> product = "LEDVANCE LED GU10 4.3W 36° (EAN 4058075521681)";
         :>> base = "GU10";
         :>> technology = BulbTechnology::led;
-        :>> power = 4.3 [W];
+        :>> power = 4.3 [SI::W];
         :>> luminousFlux = 350;
-        :>> colorTemperature = 2700 [K];
+        :>> colorTemperature = 2700 [SI::K];
     }
 
     part def LedvanceGu53Led8W :> Bulb {
@@ -191,9 +209,9 @@ package ElectricalLibrary {
         :>> product = "LEDVANCE/OSRAM LED MR16 GU5.3 12V 8W";
         :>> base = "GU5.3";
         :>> technology = BulbTechnology::led;
-        :>> power = 8 [W];
+        :>> power = 8 [SI::W];
         :>> luminousFlux = 621;
-        :>> colorTemperature = 2700 [K];
+        :>> colorTemperature = 2700 [SI::K];
     }
 
     part def StandartGu53Led4W :> Bulb {
@@ -201,9 +219,9 @@ package ElectricalLibrary {
         :>> product = "Standart LED MR16 GU5.3 4.5W (9290012109)";
         :>> base = "GU5.3";
         :>> technology = BulbTechnology::led;
-        :>> power = 4.5 [W];
+        :>> power = 4.5 [SI::W];
         :>> luminousFlux = 345;
-        :>> colorTemperature = 2700 [K];
+        :>> colorTemperature = 2700 [SI::K];
     }
 
     part def CozyHomeE14LedFilament4W :> Bulb {
@@ -211,9 +229,9 @@ package ElectricalLibrary {
         :>> product = "Cozy Home C35F7-CL-D-4.2W";
         :>> base = "E14";
         :>> technology = BulbTechnology::led;
-        :>> power = 4.2 [W];
+        :>> power = 4.2 [SI::W];
         :>> luminousFlux = 470;
-        :>> colorTemperature = 2700 [K];
+        :>> colorTemperature = 2700 [SI::K];
     }
 
     part def OsramE27LedFilamentGlobe5W :> Bulb {
@@ -222,9 +240,9 @@ package ElectricalLibrary {
         :>> product = "OSRAM LED filament globe 4.8W (AC41919)";
         :>> base = "E27";
         :>> technology = BulbTechnology::led;
-        :>> power = 4.8 [W];
+        :>> power = 4.8 [SI::W];
         :>> luminousFlux = 400;
-        :>> colorTemperature = 2200 [K];
+        :>> colorTemperature = 2200 [SI::K];
     }
 
     part def VagnerE27Halogen28W :> Bulb {
@@ -233,9 +251,9 @@ package ElectricalLibrary {
         :>> product = "Vagner SDH halogen 28W E27";
         :>> base = "E27";
         :>> technology = BulbTechnology::halogen;
-        :>> power = 28 [W];
+        :>> power = 28 [SI::W];
         :>> luminousFlux = 375;
-        :>> colorTemperature = 2800 [K];
+        :>> colorTemperature = 2800 [SI::K];
     }
 
     part def SpareBulbBox {
@@ -245,6 +263,9 @@ package ElectricalLibrary {
 
     part def CableEnd :> ElectricalDevice {
         doc /* Live cable left in the wall/furniture with nothing connected yet. */
+        port plug : ~EnergyPort {
+            attribute :>> nominalVoltage = 230 [SI::V];
+        }
     }
 
     part def Switch :> ElectricalDevice {
@@ -291,6 +312,16 @@ package ElectricalLibrary {
         ref part feeds : ElectricalDevice[0..*] default = ();
         ref part downstream : ProtectiveDevice[0..*] default = ();
 
+        // Ports for energy flow (book pattern: supplier perspective)
+        port lineIn : ~EnergyPort {
+            attribute :>> nominalVoltage = 230 [SI::V];
+            attribute :>> ratedCurrent = ratedCurrent;
+        }
+        port lineOut : EnergyPort {
+            attribute :>> nominalVoltage = 230 [SI::V];
+            attribute :>> ratedCurrent = ratedCurrent;
+        }
+
         attribute nominalVoltage :> ISQElectromagnetism::voltage default = 230 [SI::V];
 
         // ----- Connected load roll-up (evaluated by the tool) -----
@@ -329,5 +360,9 @@ package ElectricalLibrary {
 
     part def DistributionBoard {
         attribute label : String;
+        port gridIn : ~EnergyPort {
+            doc /* Main grid connection point */
+            attribute :>> nominalVoltage = 230 [SI::V];
+        }
     }
 }

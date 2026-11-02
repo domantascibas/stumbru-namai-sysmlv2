@@ -701,11 +701,16 @@ svg.addEventListener('click', (e) => {
     return;
   }
   
-  // Check if clicked on a room - double click to edit
+  // Check if clicked on a room
   for (const r of layout.rooms) {
     if (pointInRoom(wx, wy, r)) {
-      // Single click: select the room
-      selectedRoomId = r.id;
+      if (e.detail === 2) {
+        // Double click: edit the room
+        startEdit(r.id);
+      } else {
+        // Single click: select the room
+        selectedRoomId = r.id;
+      }
       render();
       return;
     }

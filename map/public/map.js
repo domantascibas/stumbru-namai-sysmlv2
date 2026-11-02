@@ -702,18 +702,24 @@ svg.addEventListener('click', (e) => {
   }
   
   // Check if clicked on a room
+  let clickedRoom = null;
   for (const r of layout.rooms) {
     if (pointInRoom(wx, wy, r)) {
-      if (e.detail === 2) {
-        // Double click: edit the room
-        startEdit(r.id);
-      } else {
-        // Single click: select the room
-        selectedRoomId = r.id;
-      }
-      render();
-      return;
+      clickedRoom = r;
+      break;
     }
+  }
+  
+  if (clickedRoom) {
+    if (e.detail === 2) {
+      // Double click: edit the room
+      startEdit(clickedRoom.id);
+    } else {
+      // Single click: select the room
+      selectedRoomId = clickedRoom.id;
+    }
+    render();
+    return;
   }
   
   // Double click on empty space to create room
@@ -729,6 +735,27 @@ svg.addEventListener('click', (e) => {
     roomXEl.value = snap(wx);
     roomYEl.value = snap(wy);
   }
+});
+
+// Add dedicated double click handler for better compatibility
+svg.addEventListener('dblclick', (e) => {
+  if (editMode) return;
+  const { px, py } = pointerPos(e);
+  const wx = toWorldX(px);
+  const wy = toWorldY(py);
+  
+  // Check if double clicked on a room
+  for (const r of layout.rooms) {
+    if (pointInRoom(wx, wy, r)) {
+      startEdit(r.id);
+      return;
+    }
+  }
+  
+  // Double click on empty space to create room
+  startCreate();
+  roomXEl.value = snap(wx);
+  roomYEl.value = snap(wy);
 });
 svg.addEventListener('pointerup', () => {
   if (roomDrag) {
@@ -807,8 +834,11 @@ roomsDropdown.addEventListener('click', (e) => {
   e.stopPropagation();
 });
 
-document.addEventListener('click', () => {
-  closeDropdown();
+document.addEventListener('click', (e) => {
+  // Only close if the click is not on the rooms button or dropdown
+  if (!roomsBtn.contains(e.target) && !roomsDropdown.contains(e.target)) {
+    closeDropdown();
+  }
 });
 
 try {

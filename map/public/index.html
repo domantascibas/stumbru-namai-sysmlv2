@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buto planas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">🗺️</span>
+      <div>
+        <h1>Buto planas</h1>
+        <p class="subtitle">0,1 m koordinatų tinklelis</p>
+      </div>
+    </div>
+    <div class="status" id="coords">x – m · y – m</div>
+    <div class="status" id="grid-step"></div>
+    <div class="status" id="zoom"></div>
+    <button class="ghost" id="fit" title="Rodyti visą planą">Visas planas</button>
+  </header>
+
+  <main class="map-wrap">
+    <svg id="map" role="img" aria-label="Buto planas ant 0,1 m tinklelio"></svg>
+    <p class="hint">Ratukas keičia mastelį aplink žymeklį, tempimas slenka vaizdą. Koordinatės — metrais nuo kairiojo viršutinio kampo (0,&nbsp;0), x į dešinę, y žemyn; tinklelio žingsnis 0,1 m. Kambarių koordinatės atkeliauja iš <code>map/layout.json</code> (planX, planY, planWidth, planDepth), vėliau — iš SysML modelio.</p>
+  </main>
+
+  <script type="module" src="map.js"></script>
+</body>
+</html>

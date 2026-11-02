@@ -1,0 +1,11 @@
+{
+  "step": 0.1,
+  "unit": "m",
+  "origin": "top-left, x right, y down",
+  "rooms": [
+    { "id": "hallway",  "name": "Koridorius", "planX": 4.0, "planY": 4.0, "planWidth": 4.0, "planDepth": 2.0 },
+    { "id": "bathroom", "name": "Vonia",      "planX": 4.0, "planY": 6.0, "planWidth": 2.4, "planDepth": 3.0 },
+    { "id": "balcony",  "name": "Balkonas",   "planX": 8.0, "planY": 4.0, "planWidth": 3.2, "planDepth": 2.0 }
+  ],
+  "devices": []
+}

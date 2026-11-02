@@ -32,8 +32,8 @@ package Panel {
             :>> name = "Įvadas";
             :>> product = "ETI ETIMAT 6";
             :>> tripCurve = TripCurve::C;
-            :>> ratedCurrent = 25 [A];
-            :>> breakingCapacity = 6000 [A];
+            :>> ratedCurrent = 25 [SI::A];
+            :>> breakingCapacity = 6000 [SI::A];
             :>> poles = 3;
             ref :>> downstream = F1;
 
@@ -42,8 +42,8 @@ package Panel {
                 :>> label = "F1";
                 :>> name = "Nuotėkio relė 30 mA";
                 :>> product = "ETI EFI-4";
-                :>> ratedCurrent = 25 [A];
-                :>> residualCurrent = 0.03 [A];
+                :>> ratedCurrent = 25 [SI::A];
+                :>> residualCurrent = 0.03 [SI::A];
                 :>> rcdType = RcdType::AC;
                 :>> poles = 4;
                 ref :>> downstream = (F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13);
@@ -55,8 +55,8 @@ package Panel {
                     :>> name = "Vaikų k. ir koridoriaus rozetės";
                     :>> product = "ETI ETIMAT 6";
                     :>> tripCurve = TripCurve::C;
-                    :>> ratedCurrent = 16 [A];
-                    :>> breakingCapacity = 6000 [A];
+                    :>> ratedCurrent = 16 [SI::A];
+                    :>> breakingCapacity = 6000 [SI::A];
                     ref :>> feeds = (
                         apartment.kidsRoom.R1,
                         apartment.kidsRoom.R2,
@@ -78,8 +78,8 @@ package Panel {
                     :>> name = "Miegamojo ir svetainės rozetės";
                     :>> product = "ETI ETIMAT 6";
                     :>> tripCurve = TripCurve::C;
-                    :>> ratedCurrent = 16 [A];
-                    :>> breakingCapacity = 6000 [A];
+                    :>> ratedCurrent = 16 [SI::A];
+                    :>> breakingCapacity = 6000 [SI::A];
                     ref :>> feeds = (
                         apartment.bedroom.R1,
                         apartment.bedroom.R2,
@@ -102,8 +102,8 @@ package Panel {
                     :>> name = "Vonia: veidrodis";
                     :>> product = "ETI ETIMAT 10";
                     :>> tripCurve = TripCurve::B;
-                    :>> ratedCurrent = 10 [A];
-                    :>> breakingCapacity = 10000 [A];
+                    :>> ratedCurrent = 10 [SI::A];
+                    :>> breakingCapacity = 10000 [SI::A];
                     ref :>> feeds = (
                         apartment.bathroom.L2,
                         apartment.bathroom.R2
@@ -117,8 +117,8 @@ package Panel {
                     :>> name = "Vonia: gyvatukas";
                     :>> product = "ETI ETIMAT 6";
                     :>> tripCurve = TripCurve::C;
-                    :>> ratedCurrent = 16 [A];
-                    :>> breakingCapacity = 6000 [A];
+                    :>> ratedCurrent = 16 [SI::A];
+                    :>> breakingCapacity = 6000 [SI::A];
                     ref :>> feeds = apartment.bathroom.towelRail;
                 }
 
@@ -129,8 +129,8 @@ package Panel {
                     :>> name = "Vonia: grindų šildymas";
                     :>> product = "ETI ETIMAT 6";
                     :>> tripCurve = TripCurve::C;
-                    :>> ratedCurrent = 16 [A];
-                    :>> breakingCapacity = 6000 [A];
+                    :>> ratedCurrent = 16 [SI::A];
+                    :>> breakingCapacity = 6000 [SI::A];
                     ref :>> feeds = apartment.bathroom.floorHeating;
                 }
 
@@ -142,8 +142,8 @@ package Panel {
                     :>> name = "Kaitlentė ir orkaitė";
                     :>> product = "ETI ETIMAT 6";
                     :>> tripCurve = TripCurve::C;
-                    :>> ratedCurrent = 16 [A];
-                    :>> breakingCapacity = 6000 [A];
+                    :>> ratedCurrent = 16 [SI::A];
+                    :>> breakingCapacity = 6000 [SI::A];
                     :>> poles = 3;
                     ref :>> feeds = (
                         apartment.livingKitchen.hob,
@@ -159,8 +159,8 @@ package Panel {
                     :>> name = "Virtuvė: indaplovė ir stalviršis";
                     :>> product = "ETI ETIMAT 6";
                     :>> tripCurve = TripCurve::C;
-                    :>> ratedCurrent = 16 [A];
-                    :>> breakingCapacity = 6000 [A];
+                    :>> ratedCurrent = 16 [SI::A];
+                    :>> breakingCapacity = 6000 [SI::A];
                     ref :>> feeds = (
                         apartment.livingKitchen.R3,
                         apartment.livingKitchen.R5,
@@ -176,8 +176,8 @@ package Panel {
                     :>> name = "Vonia: skalbyklė";
                     :>> product = "ETI ETIMAT 6";
                     :>> tripCurve = TripCurve::C;
-                    :>> ratedCurrent = 16 [A];
-                    :>> breakingCapacity = 6000 [A];
+                    :>> ratedCurrent = 16 [SI::A];
+                    :>> breakingCapacity = 6000 [SI::A];
                     ref :>> feeds = (
                         apartment.bathroom.R1,
                         apartment.bathroom.R3
@@ -191,8 +191,8 @@ package Panel {
                     :>> name = "Virtuvė: šaldytuvas ir mikrobangė";
                     :>> product = "ETI ETIMAT 6";
                     :>> tripCurve = TripCurve::C;
-                    :>> ratedCurrent = 16 [A];
-                    :>> breakingCapacity = 6000 [A];
+                    :>> ratedCurrent = 16 [SI::A];
+                    :>> breakingCapacity = 6000 [SI::A];
                     ref :>> feeds = (
                         apartment.livingKitchen.R1,
                         apartment.livingKitchen.R2,
@@ -208,8 +208,8 @@ package Panel {
                     :>> name = "Apšvietimas (be vonios)";
                     :>> product = "ETI ETIMAT 6";
                     :>> tripCurve = TripCurve::C;
-                    :>> ratedCurrent = 10 [A];
-                    :>> breakingCapacity = 6000 [A];
+                    :>> ratedCurrent = 10 [SI::A];
+                    :>> breakingCapacity = 6000 [SI::A];
                     ref :>> feeds = (
                         apartment.livingKitchen.L1,
                         apartment.livingKitchen.L2,
@@ -229,8 +229,8 @@ package Panel {
                     :>> name = "Vonia: apšvietimas";
                     :>> product = "ETI ETIMAT 6";
                     :>> tripCurve = TripCurve::C;
-                    :>> ratedCurrent = 10 [A];
-                    :>> breakingCapacity = 6000 [A];
+                    :>> ratedCurrent = 10 [SI::A];
+                    :>> breakingCapacity = 6000 [SI::A];
                     ref :>> feeds = apartment.bathroom.L1;
                 }
 
@@ -241,8 +241,8 @@ package Panel {
                     :>> name = "Modemas";
                     :>> product = "ETI ETIMAT 6";
                     :>> tripCurve = TripCurve::C;
-                    :>> ratedCurrent = 10 [A];
-                    :>> breakingCapacity = 6000 [A];
+                    :>> ratedCurrent = 10 [SI::A];
+                    :>> breakingCapacity = 6000 [SI::A];
                     ref :>> feeds = apartment.hallway.modemBox;
                 }
             }

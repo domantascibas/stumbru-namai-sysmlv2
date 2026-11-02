@@ -42,7 +42,7 @@ package Rooms {
                 :>> label = "L2";
                 :>> bulbSocketCount = 0;
                 :>> product = "Philips LED Ceiling Luminaire 929002669";
-                :>> power = 22 [W];
+                :>> power = 22 [SI::W];
             }
 
             part L3 : Light {
@@ -72,7 +72,7 @@ package Rooms {
                          * `power` here is the motor only; the light is counted separately.
                          */
                 :>> product = "Elica ELITE14 LUX WH/A/60";
-                :>> power = 150 [W];
+                :>> power = 150 [SI::W];
                 :>> connectedLoad = power + light.connectedLoad;
 
                 part light : Light {
@@ -91,7 +91,7 @@ package Rooms {
                          * i.e. they load two of the three phases; which ones is unknown.
                          */
                 :>> product = "Samsung NZ64T3707A1";
-                :>> power = 7000 [W];
+                :>> power = 7000 [SI::W];
                 :>> phases = 3;
             }
 
@@ -106,18 +106,18 @@ package Rooms {
                 doc /* Šaldytuvas */
                 comment /* Rating plate: 230-240 V, 0.8 A (~185 W); defrost heater 113 W; 305 l, class A+. */
                 :>> product = "Electrolux ENN3153AOW";
-                :>> power = 185 [W];
+                :>> power = 185 [SI::W];
             }
             part microwave : PluggedAppliance {
                 doc /* Mikrobangė su griliu */
                 comment /* Rating plate: microwave input 1150 W (output 700 W), grill 1000 W, max input 1150 W. */
                 :>> product = "Candy CMG 7417 DS";
-                :>> power = 1150 [W];
+                :>> power = 1150 [SI::W];
             }
             part dishwasher : PluggedAppliance {
                 doc /* Indaplovė, 45 cm, integruota */
                 :>> product = "Bosch SPV69T40EU/23 SuperSilence";
-                :>> power = 2400 [W];   // rating plate: 2.0-2.4 kW, fuse 10/16 A
+                :>> power = 2400 [SI::W];   // rating plate: 2.0-2.4 kW, fuse 10/16 A
             }
             part oven : PluggedAppliance {
                 doc /* Orkaitė */
@@ -127,17 +127,17 @@ package Rooms {
                          * which one is unknown.
                          */
                 :>> product = "Bosch HBA23B122S";
-                :>> power = 3500 [W];   // rating plate: 220-240 V, 3.5 kW
+                :>> power = 3500 [SI::W];   // rating plate: 220-240 V, 3.5 kW
             }
             part kettle : PluggedAppliance {
                 doc /* Arbatinukas */
                 :>> product = "Philips HD9321/20";
-                :>> power = 2200 [W];   // rating plate: 1850-2200 W
+                :>> power = 2200 [SI::W];   // rating plate: 1850-2200 W
             }
             part coffeeMachine : PluggedAppliance {
                 doc /* Kavos aparatas */
                 :>> product = "De'Longhi Dinamica ECAM350.15.B";
-                :>> power = 1450 [W];   // rating plate: 220-240 V, 1450 W, 15 bar
+                :>> power = 1450 [SI::W];   // rating plate: 220-240 V, 1450 W, 15 bar
             }
             part tv : PluggedAppliance { doc /* Televizorius */ }
             part roomba : PluggedAppliance { doc /* Roomba */ }
@@ -277,7 +277,7 @@ package Rooms {
                 :>> label = "L2";
                 :>> bulbSocketCount = 0;
                 :>> product = "IKEA LED lamp (driver RECOM RACV04-24)";
-                :>> power = 4 [W];
+                :>> power = 4 [SI::W];
             }
 
             // ----- Plugged-in appliances -----
@@ -578,7 +578,7 @@ package Rooms {
                          * element may be weaker. To be measured with the electricity meter (only F5 on).
                          */
                 :>> product = "Square Line KTX-2 MS heating element";
-                :>> power = 1000 [W];
+                :>> power = 1000 [SI::W];
             }
 
             // ----- Plugged-in appliances -----
@@ -586,7 +586,7 @@ package Rooms {
             part washingMachine : PluggedAppliance {
                 doc /* Skalbyklė su džiovinimu, 9 kg skalbimas / 6 kg džiovinimas */
                 :>> product = "Samsung WD90T984ASH/S7";
-                :>> power = 2300 [W];   // rating plate: 2000-2300 W
+                :>> power = 2300 [SI::W];   // rating plate: 2000-2300 W
             }
 
             // ----- Outlets -----

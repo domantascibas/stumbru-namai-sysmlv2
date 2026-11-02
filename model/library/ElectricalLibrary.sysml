@@ -9,6 +9,20 @@ package ElectricalLibrary {
     private import SI::*;
 
     // ---------------------------------------------------------------
+    // Ports and Items (SysML v2 Book patterns)
+    // ---------------------------------------------------------------
+
+    item def ElectricalPower {
+        attribute voltage :> ISQElectromagnetism::voltage;
+    }
+
+    port def EnergyPort {
+        out item electricalEnergy : ElectricalPower;
+        attribute nominalVoltage :> ISQElectromagnetism::voltage;
+        attribute ratedCurrent :> ISQBase::electricCurrent;
+    }
+
+    // ---------------------------------------------------------------
     // Enumerations
     // ---------------------------------------------------------------
 
@@ -77,7 +91,7 @@ package ElectricalLibrary {
         // Roll-up: rated power connected through this device (evaluated by the tool).
         // The model describes the installation only; what is switched on is up to
         // the viewer's simulator.
-        attribute connectedLoad : PowerValue default = 0 [W];
+        attribute connectedLoad :> ISQElectromagnetism::electricPower default = 0 [SI::W];
     }
 
     abstract part def Load :> ElectricalDevice {
@@ -85,7 +99,7 @@ package ElectricalLibrary {
         attribute product : String;     // manufacturer and model
         // Rated (maximum) power from the rating plate. Unknown power counts as 0 W
         // in the roll-up; the viewer flags such devices.
-        attribute power : PowerValue default = 0 [W];
+        attribute power :> ISQElectromagnetism::electricPower default = 0 [SI::W];
         attribute :>> connectedLoad default = power;
     }
 
@@ -116,7 +130,7 @@ package ElectricalLibrary {
         attribute product : String;
         attribute base : String;            // e.g. "G9", "E27", "GU10"
         attribute technology : BulbTechnology;
-        attribute power : PowerValue;
+        attribute power :> ISQElectromagnetism::electricPower;
         attribute luminousFlux : Real;      // lm
         attribute colorTemperature : ThermodynamicTemperatureValue;
     }
@@ -271,45 +285,45 @@ package ElectricalLibrary {
         attribute label : String;   // label in the panel, e.g. "Q1", "F1"
         attribute name : String;    // text on the panel, e.g. "Kitchen outlets"
         attribute product : String; // manufacturer series, e.g. "ETI ETIMAT 6"
-        attribute ratedCurrent : ElectricCurrentValue;
+        attribute ratedCurrent :> ISQBase::electricCurrent;
         attribute poles : Natural default = 1;
         attribute phase : Phase default = Phase::L1;   // used by single-pole devices
         ref part feeds : ElectricalDevice[0..*] default = ();
         ref part downstream : ProtectiveDevice[0..*] default = ();
 
-        attribute nominalVoltage : ElectricPotentialValue default = 230 [V];
+        attribute nominalVoltage :> ISQElectromagnetism::voltage default = 230 [SI::V];
 
         // ----- Connected load roll-up (evaluated by the tool) -----
         // Rated power of everything installed downstream, per phase; a multi-pole
         // device spreads its directly fed load evenly over the phases (actual split
         // unknown). What is running at a given moment is simulated by the viewer.
-        attribute connectedLoad : PowerValue default = feedLoad + downstreamLoad;
-        attribute connectedLoadL1 : PowerValue default =
-            (if poles >= 3 ? feedLoad / 3 else if phase == Phase::L1 ? feedLoad else 0 [W]) + downstreamLoadL1;
-        attribute connectedLoadL2 : PowerValue default =
-            (if poles >= 3 ? feedLoad / 3 else if phase == Phase::L2 ? feedLoad else 0 [W]) + downstreamLoadL2;
-        attribute connectedLoadL3 : PowerValue default =
-            (if poles >= 3 ? feedLoad / 3 else if phase == Phase::L3 ? feedLoad else 0 [W]) + downstreamLoadL3;
+        attribute connectedLoad :> ISQElectromagnetism::electricPower default = feedLoad + downstreamLoad;
+        attribute connectedLoadL1 :> ISQElectromagnetism::electricPower default =
+            (if poles >= 3 ? feedLoad / 3 else if phase == Phase::L1 ? feedLoad else 0 [SI::W]) + downstreamLoadL1;
+        attribute connectedLoadL2 :> ISQElectromagnetism::electricPower default =
+            (if poles >= 3 ? feedLoad / 3 else if phase == Phase::L2 ? feedLoad else 0 [SI::W]) + downstreamLoadL2;
+        attribute connectedLoadL3 :> ISQElectromagnetism::electricPower default =
+            (if poles >= 3 ? feedLoad / 3 else if phase == Phase::L3 ? feedLoad else 0 [SI::W]) + downstreamLoadL3;
         // Helpers: directly fed and downstream parts of the sums above.
-        attribute feedLoad : PowerValue default = RealFunctions::sum(feeds.connectedLoad) as PowerValue;
-        attribute downstreamLoad : PowerValue default = RealFunctions::sum(downstream.connectedLoad) as PowerValue;
-        attribute downstreamLoadL1 : PowerValue default = RealFunctions::sum(downstream.connectedLoadL1) as PowerValue;
-        attribute downstreamLoadL2 : PowerValue default = RealFunctions::sum(downstream.connectedLoadL2) as PowerValue;
-        attribute downstreamLoadL3 : PowerValue default = RealFunctions::sum(downstream.connectedLoadL3) as PowerValue;
+        attribute feedLoad :> ISQElectromagnetism::electricPower default = RealFunctions::sum(feeds.connectedLoad);
+        attribute downstreamLoad :> ISQElectromagnetism::electricPower default = RealFunctions::sum(downstream.connectedLoad);
+        attribute downstreamLoadL1 :> ISQElectromagnetism::electricPower default = RealFunctions::sum(downstream.connectedLoadL1);
+        attribute downstreamLoadL2 :> ISQElectromagnetism::electricPower default = RealFunctions::sum(downstream.connectedLoadL2);
+        attribute downstreamLoadL3 :> ISQElectromagnetism::electricPower default = RealFunctions::sum(downstream.connectedLoadL3);
     }
 
     part def MainSwitch :> ProtectiveDevice;
 
     part def Rcd :> ProtectiveDevice {
         doc /* Residual current device. */
-        attribute residualCurrent : ElectricCurrentValue;   // e.g. 0.03 [A]
+        attribute residualCurrent :> ISQBase::electricCurrent;   // e.g. 0.03 [SI::A]
         attribute rcdType : RcdType;
     }
 
     part def CircuitBreaker :> ProtectiveDevice {
         doc /* One circuit breaker = one circuit. */
         attribute tripCurve : TripCurve default = TripCurve::B;
-        attribute breakingCapacity : ElectricCurrentValue;   // e.g. 6000 [A]
+        attribute breakingCapacity :> ISQBase::electricCurrent;   // e.g. 6000 [SI::A]
         attribute cableCrossSectionMm2 : Real;   // e.g. 1.5, 2.5
     }
 

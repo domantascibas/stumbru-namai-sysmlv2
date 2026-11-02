@@ -569,14 +569,18 @@ svg.addEventListener('pointerdown', (e) => {
     
     // Check if clicking on selected room to drag it
     if (pointInRoom(wx, wy, room)) {
-      roomDrag = { roomId: room.id, startX: wx, startY: wy };
-      // Store original position
-      if (room.type === 'polygon') {
-        roomDrag.originalVertices = JSON.parse(JSON.stringify(room.vertices));
+      // Calculate drag offset: distance from mouse to room's reference point
+      let offsetX, offsetY;
+      if (room.type === 'polygon' && room.vertices && room.vertices.length > 0) {
+        offsetX = wx - room.vertices[0][0];
+        offsetY = wy - room.vertices[0][1];
       } else {
-        roomDrag.originalX = room.planX;
-        roomDrag.originalY = room.planY;
+        offsetX = wx - room.planX;
+        offsetY = wy - room.planY;
       }
+      roomDrag = { roomId: room.id, offsetX, offsetY,
+                   originalVertices: room.type === 'polygon' ? JSON.parse(JSON.stringify(room.vertices)) : null,
+                   originalX: room.planX, originalY: room.planY };
       svg.setPointerCapture(e.pointerId);
       e.preventDefault();
       return;
@@ -597,14 +601,20 @@ svg.addEventListener('pointerdown', (e) => {
   if (clickedRoom) {
     // Start dragging this room
     selectedRoomId = clickedRoom.id;
-    roomDrag = { roomId: clickedRoom.id, startX: wx, startY: wy };
-    // Store original position
-    if (clickedRoom.type === 'polygon') {
-      roomDrag.originalVertices = JSON.parse(JSON.stringify(clickedRoom.vertices));
+    // Calculate drag offset: distance from mouse to room's reference point
+    let offsetX, offsetY;
+    if (clickedRoom.type === 'polygon' && clickedRoom.vertices && clickedRoom.vertices.length > 0) {
+      // For polygons, use the first vertex as reference
+      offsetX = wx - clickedRoom.vertices[0][0];
+      offsetY = wy - clickedRoom.vertices[0][1];
     } else {
-      roomDrag.originalX = clickedRoom.planX;
-      roomDrag.originalY = clickedRoom.planY;
+      // For rectangles, use top-left corner
+      offsetX = wx - clickedRoom.planX;
+      offsetY = wy - clickedRoom.planY;
     }
+    roomDrag = { roomId: clickedRoom.id, offsetX, offsetY,
+                 originalX: clickedRoom.planX, originalY: clickedRoom.planY,
+                 originalVertices: clickedRoom.type === 'polygon' ? JSON.parse(JSON.stringify(clickedRoom.vertices)) : null };
     svg.setPointerCapture(e.pointerId);
     e.preventDefault();
     return;
@@ -629,24 +639,21 @@ svg.addEventListener('pointermove', (e) => {
     }
     render();
   } else if (roomDrag) {
-    // Drag room
+    // Drag room - calculate new position based on mouse and offset
     const room = findRoomById(roomDrag.roomId);
     if (room) {
-      const dx = wx - roomDrag.startX;
-      const dy = wy - roomDrag.startY;
+      const newX = snap(wx - roomDrag.offsetX);
+      const newY = snap(wy - roomDrag.offsetY);
       
       if (room.type === 'polygon') {
-        // Move all vertices
-        const newVertices = room.vertices.map(v => [snap(v[0] + dx), snap(v[1] + dy)]);
-        room.vertices = newVertices;
-        roomDrag.startX = wx;
-        roomDrag.startY = wy;
+        // Move all vertices relative to first vertex
+        const dx = newX - room.vertices[0][0];
+        const dy = newY - room.vertices[0][1];
+        room.vertices = room.vertices.map(v => [snap(v[0] + dx), snap(v[1] + dy)]);
       } else {
         // Move rectangle
-        room.planX = snap(roomDrag.originalX + dx);
-        room.planY = snap(roomDrag.originalY + dy);
-        roomDrag.startX = wx;
-        roomDrag.startY = wy;
+        room.planX = newX;
+        room.planY = newY;
       }
       
       updateAreaDisplay();

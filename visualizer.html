@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrical Installation Visualizer</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { color: #2c3e50; margin-bottom: 20px; font-size: 24px; }
+        h2 { color: #2c3e50; margin: 15px 0 10px; font-size: 18px; border-bottom: 2px solid #3498db; padding-bottom: 5px; }
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* Circuit Breaker List - One per row */
+        .breaker-list {
+            margin-bottom: 20px;
+        }
+        
+        .breaker-item {
+            display: block;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            background: #ecf0f1;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .breaker-item:hover {
+            background: #dfe6e9;
+            border-color: #3498db;
+        }
+        
+        .breaker-item.selected {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+        
+        .breaker-label {
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-block;
+            min-width: 40px;
+        }
+        
+        .breaker-name {
+            font-size: 14px;
+            margin-left: 15px;
+        }
+        
+        .breaker-specs {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-left: 15px;
+        }
+        
+        /* Devices Section */
+        .devices-section {
+            margin-top: 20px;
+        }
+        
+        .device-row {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .device-row.odd {
+            background: #f0f0f0;
+        }
+        
+        .device-icon {
+            font-family: monospace;
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            min-width: 24px;
+            text-align: center;
+        }
+        
+        .device-info {
+            flex: 1;
+        }
+        
+        .device-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+        
+        .device-meta {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        .device-details {
+            font-size: 12px;
+            color: #555;
+        }
+        
+        .device-power {
+            font-size: 11px;
+            color: #e74c3c;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        
+        /* Connection Trees */
+        .connections {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .connection-section {
+            margin-bottom: 15px;
+        }
+        
+        .connection-title {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .tree {
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            line-height: 1.5;
+        }
+        
+        /* IEC/ISO Symbol Styling */
+        .symbol {
+            display: inline-block;
+            font-family: monospace;
+            font-weight: bold;
+        }
+        
+        .symbol-CB { color: #e74c3c; }  /* Circuit Breaker */
+        .symbol-RCD { color: #e67e22; } /* RCD */
+        .symbol-MS { color: #9b59b6; }  /* Main Switch */
+        .symbol-L, .symbol-LAMP { color: #f1c40f; }   /* Light */
+        .symbol-R { color: #3498db; }   /* Outlet/Receptacle */
+        .symbol-S { color: #2ecc71; }   /* Switch */
+        .symbol-FIX { color: #95a5a6; } /* Fixed Appliance */
+        .symbol-APP { color: #1abc9c; } /* Plugged Appliance */
+        .symbol-PS { color: #34495e; }  /* Power Strip */
+        .symbol-X { color: #7f8c8d; }   /* Cable End */
+        .symbol-T { color: #e74c3c; }   /* Thermostat */
+        
+        /* Tree visualization improvements */
+        .tree {
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            line-height: 1.5;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .tree::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .tree::-webkit-scrollbar-track {
+            background: #e0e0e0;
+            border-radius: 3px;
+        }
+        
+        .tree::-webkit-scrollbar-thumb {
+            background: #95a5a6;
+            border-radius: 3px;
+        }
+        
+        .connection-title {
+            font-weight: bold;
+            font-size: 13px;
+            margin: 10px 0 5px 0;
+            color: #2c3e50;
+        }
+        
+        /* Bulb Details */
+        .bulb-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .bulb-item {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .bulb-technology {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .bulb-technology.led { background: #2ecc71; color: white; }
+        .bulb-technology.halogen { background: #e67e22; color: white; }
+        .bulb-technology.incandescent { background: #f39c12; color: white; }
+        .bulb-technology.fluorescent { background: #9b59b6; color: white; }
+        
+        /* Spare Bulbs */
+        .spare-bulbs-section {
+            background: #fff8e1;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #ffc107;
+        }
+        
+        .spare-bulbs-title { color: #ff9800; margin-bottom: 10px; }
+        
+        .type-tag {
+            display: inline-block; padding: 2px 5px; border-radius: 3px; font-size: 10px;
+            margin-right: 5px; background: #ecf0f1; color: #34495e;
+        }
+        
+        .connector-tag {
+            display: inline-block; padding: 2px 5px; border-radius: 3px; font-size: 10px;
+            margin-right: 5px; background: #e3f2fd; color: #1976d2;
+        }
+        
+        .warning-tag { background: #fff3e0; color: #f57c00; padding: 2px 5px; border-radius: 3px; font-size: 10px; }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #95a5a6;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .device-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .device-icon {
+                margin-right: 0;
+            }
+            .bulb-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Electrical Installation Visualizer</h1>
+        <p style="margin-bottom: 20px; color: #7f8c8d; font-size: 12px;">
+            Data generated: <span id="dataTimestamp">Loading...</span> | 
+            Auto-refresh: <span id="autoRefreshStatus">Active</span>
+            <button onclick="location.reload()" style="margin-left: 15px; padding: 2px 8px; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;" title="Refresh data manually">Refresh</button>
+        </p>
+        
+        <div class="section">
+            <h2>Circuit Breakers</h2>
+            <p style="margin-bottom: 15px; color: #7f8c8d; font-size: 14px;">
+                Click a circuit breaker to see its downstream devices.
+            </p>
+            
+            <div class="breaker-list" id="breakerList">
+                <!-- Circuit breakers will be populated by JavaScript -->
+            </div>
+            
+            <div class="devices-section" id="devicesSection">
+                <div class="empty-state" id="emptyState">
+                    Click a circuit breaker above to see its downstream devices.
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Spare Bulbs</h2>
+            <div id="spareBulbsSection"></div>
+        </div>
+    </div>
+    
+    <script src="visualizer-data.js"></script>
+    <script src="visualizer-app.js"></script>
+</body>
+</html>

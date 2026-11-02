@@ -1,11 +1,20 @@
 {
-  "name": "stumbru-namai-sysmlv2",
-  "private": true,
-  "type": "module",
-  "description": "SysML v2 model of the apartment's electrical installation, with a live viewer",
-  "engines": { "node": ">=22" },
+  "name": "stumbru-namai-sysmlv2-visualizer",
+  "version": "1.0.0",
+  "description": "Electrical Installation Visualizer for SysML v2 model",
+  "main": "generate-visualizer-data.js",
   "scripts": {
-    "start": "node viewer/server.js",
-    "check": "sysml -validate model"
-  }
+    "generate": "node generate-visualizer-data.js",
+    "watch": "node watch-sysml.js",
+    "generate:watch": "node generate-visualizer-data.js --watch"
+  },
+  "keywords": [
+    "sysml",
+    "electrical",
+    "visualizer",
+    "circuit-breaker",
+    "iec-81346"
+  ],
+  "author": "",
+  "license": "MIT"
 }

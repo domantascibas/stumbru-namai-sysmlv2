@@ -198,15 +198,16 @@ function updateRoomList() {
 
 // Dropdown management
 function toggleDropdown() {
-  roomsDropdown.classList.toggle('show');
+  if (roomsDropdown) roomsDropdown.classList.toggle('show');
 }
 
 function closeDropdown() {
-  roomsDropdown.classList.remove('show');
+  if (roomsDropdown) roomsDropdown.classList.remove('show');
 }
 
 // Update form visibility based on room type
 function updateFormVisibility(type) {
+  if (!rectFormEl || !polygonFormEl) return;
   if (type === 'polygon') {
     rectFormEl.style.display = 'none';
     polygonFormEl.style.display = 'block';
@@ -241,6 +242,7 @@ function parseVertices(text) {
 
 // Start editing a room
 function startEdit(roomId) {
+  if (!editPanel || !modalOverlay || !roomIdEl || !roomNameEl || !roomTypeEl || !roomXEl || !roomYEl || !roomWidthEl || !roomDepthEl) return;
   const room = findRoomById(roomId);
   if (!room) return;
   
@@ -264,12 +266,13 @@ function startEdit(roomId) {
     roomDepthEl.value = room.planDepth;
   }
   
-  deleteRoomBtn.style.display = 'inline-block';
-  roomNameEl.focus();
+  if (deleteRoomBtn) deleteRoomBtn.style.display = 'inline-block';
+  if (roomNameEl) roomNameEl.focus();
 }
 
 // Start creating a new room
 function startCreate() {
+  if (!editPanel || !modalOverlay || !roomIdEl || !roomNameEl || !roomTypeEl || !roomXEl || !roomYEl || !roomWidthEl || !roomDepthEl || !roomVerticesEl) return;
   selectedRoomId = null;
   editMode = true;
   editPanel.style.display = 'block';
@@ -287,8 +290,8 @@ function startCreate() {
   roomDepthEl.value = 4;
   roomVerticesEl.value = '';
   
-  deleteRoomBtn.style.display = 'none';
-  roomNameEl.focus();
+  if (deleteRoomBtn) deleteRoomBtn.style.display = 'none';
+  if (roomNameEl) roomNameEl.focus();
 }
 
 // Event listener for room type change
@@ -298,6 +301,7 @@ roomTypeEl.addEventListener('change', () => {
 
 // Vertex management buttons
 document.getElementById('add-vertex')?.addEventListener('click', () => {
+  if (!roomVerticesEl) return;
   const current = roomVerticesEl.value;
   const coords = cursor ? `${snap(cursor.x)},${snap(cursor.y)}` : '0,0';
   roomVerticesEl.value = current ? `${current}\n${coords}` : coords;
@@ -305,13 +309,14 @@ document.getElementById('add-vertex')?.addEventListener('click', () => {
 });
 
 document.getElementById('clear-vertices')?.addEventListener('click', () => {
+  if (!roomVerticesEl) return;
   roomVerticesEl.value = '';
 });
 
 // Cancel editing
 function cancelEdit() {
-  editPanel.style.display = 'none';
-  modalOverlay.style.display = 'none';
+  if (editPanel) editPanel.style.display = 'none';
+  if (modalOverlay) modalOverlay.style.display = 'none';
   selectedRoomId = null;
   editMode = false;
 }
@@ -333,6 +338,7 @@ async function deleteRoom(roomId) {
 // Save room (create or update)
 async function saveRoom(e) {
   e.preventDefault();
+  if (!roomIdEl || !roomTypeEl || !roomNameEl) return;
   
   const roomId = roomIdEl.value || generateRoomId();
   const type = roomTypeEl.value;
@@ -840,7 +846,7 @@ roomsDropdown.addEventListener('click', (e) => {
 
 document.addEventListener('click', (e) => {
   // Only close if the click is not on the rooms button or dropdown
-  if (!roomsBtn.contains(e.target) && !roomsDropdown.contains(e.target)) {
+  if (roomsBtn && roomsDropdown && !roomsBtn.contains(e.target) && !roomsDropdown.contains(e.target)) {
     closeDropdown();
   }
 });

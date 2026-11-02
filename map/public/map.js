@@ -747,29 +747,55 @@ svg.addEventListener('click', (e) => {
 svg.addEventListener('dblclick', (e) => {
   if (editMode) return;
   
-  // Check if the target or its parent is a room or vertex element
-  let target = e.target;
-  let roomId = null;
-  while (target && target !== svg && target !== document) {
-    if (target.classList?.contains('room') || target.classList?.contains('vertex')) {
-      roomId = target.getAttribute('data-id') || target.getAttribute('data-room');
-      if (roomId) break;
+  // Use closest() to find room/vertex element from the click target
+  // closest() works on SVG elements in modern browsers
+  let element = e.target;
+  
+  // First try: find nearest .room or .vertex parent
+  const roomOrVertex = element.closest?.('.room, .vertex');
+  if (roomOrVertex) {
+    let roomId = roomOrVertex.getAttribute('data-id') || roomOrVertex.getAttribute('data-room');
+    if (roomId) {
+      startEdit(roomId);
+      return;
     }
-    if (target.classList?.contains('room-name') || target.classList?.contains('room-size')) {
-      // Text elements are inside room group, get parent room id
-      const roomGroup = target.parentNode;
-      roomId = roomGroup?.getAttribute('data-id');
-      if (roomId) break;
+    // For text elements inside room, try parent
+    const roomGroup = element.closest?.('.room');
+    if (roomGroup) {
+      roomId = roomGroup.getAttribute('data-id');
+      if (roomId) {
+        startEdit(roomId);
+        return;
+      }
+    }
+  }
+  
+  // Also check for room-name or room-size text elements
+  const textElement = element.closest?.('.room-name, .room-size');
+  if (textElement) {
+    const roomGroup = textElement.parentNode;
+    const roomId = roomGroup?.getAttribute('data-id');
+    if (roomId) {
+      startEdit(roomId);
+      return;
+    }
+  }
+
+  // Fallback: walk up the DOM tree manually for browsers without closest()
+  let target = e.target;
+  while (target && target !== svg && target !== document) {
+    const cls = (target.getAttribute?.('class') || '') + '';
+    if (cls.includes('room') || cls.includes('vertex')) {
+      let roomId = target.getAttribute?.('data-id') || target.getAttribute?.('data-room');
+      if (roomId) {
+        startEdit(roomId);
+        return;
+      }
     }
     target = target.parentNode;
   }
-  
-  if (roomId) {
-    startEdit(roomId);
-    return;
-  }
 
-  // Fallback to coordinate-based detection
+  // Final fallback to coordinate-based detection
   const { px, py } = pointerPos(e);
   const wx = toWorldX(px);
   const wy = toWorldY(py);

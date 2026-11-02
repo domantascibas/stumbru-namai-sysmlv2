@@ -8,10 +8,16 @@ package Rooms {
     private import SI::*;
 
     part apartment {
+        // Floor plan: placeholder squares (planX/planY/planWidth/planDepth, metres)
+        // until the real drawing is available.
 
         // Living room and kitchen are one open space
         part livingKitchen : Room {
             doc /* Svetainė + virtuvė */
+            :>> planX = 10;
+            :>> planY = 0;
+            :>> planWidth = 8;
+            :>> planDepth = 8;
 
             // ----- Lighting -----
 
@@ -20,6 +26,7 @@ package Rooms {
                 :>> label = "L1";
                 :>> bulbSocketCount = 1;
                 part ledBulbs : OsramE27LedFilamentGlobe5W[1] :> bulbs;
+                :>> power = RealFunctions::sum(ledBulbs.power);
             }
 
             part L2 : Light {
@@ -43,6 +50,7 @@ package Rooms {
                 :>> label = "L3";
                 :>> bulbSocketCount = 4;
                 part ledBulbs : LedvanceGu10Led4W[4] :> bulbs;
+                :>> power = RealFunctions::sum(ledBulbs.power);
             }
 
             part L4 : Light {
@@ -53,6 +61,7 @@ package Rooms {
                          */
                 :>> label = "L4";
                 :>> bulbSocketCount = 0;
+                :>> lengthM = 3;
             }
 
             // ----- Fixed appliances -----
@@ -64,12 +73,14 @@ package Rooms {
                          */
                 :>> product = "Elica ELITE14 LUX WH/A/60";
                 :>> power = 150 [W];
+                :>> connectedLoad = power + light.connectedLoad;
 
                 part light : Light {
                     doc /* Gartraukio apšvietimas, valdomas gartraukio mygtukais */
                     comment /* Rating plate allows max 28 W per socket. */
                     :>> bulbSocketCount = 2;
                     part ledBulbs : CozyHomeE14LedFilament4W[2] :> bulbs;
+                    :>> power = RealFunctions::sum(ledBulbs.power);
                 }
             }
 
@@ -241,6 +252,10 @@ package Rooms {
 
         part kidsRoom : Room {
             doc /* Vaikų kambarys */
+            :>> planX = 5;
+            :>> planY = 0;
+            :>> planWidth = 5;
+            :>> planDepth = 5;
 
             // ----- Lighting -----
 
@@ -250,6 +265,7 @@ package Rooms {
                 :>> bulbSocketCount = 6;
                 part ledBulbs : OkkoG9Led4W[4] :> bulbs;
                 part halogenBulbs : OsramG9Halogen33W[2] :> bulbs;
+                :>> power = RealFunctions::sum(ledBulbs.power) + RealFunctions::sum(halogenBulbs.power);
             }
 
             part L2 : Light {
@@ -315,6 +331,10 @@ package Rooms {
 
         part bedroom : Room {
             doc /* Miegamasis */
+            :>> planX = 0;
+            :>> planY = 0;
+            :>> planWidth = 5;
+            :>> planDepth = 5;
 
             // ----- Lighting -----
 
@@ -324,6 +344,7 @@ package Rooms {
                 :>> bulbSocketCount = 6;
                 part ledBulbs : OkkoG9Led4W[5] :> bulbs;
                 part halogenBulbs : OsramG9Halogen33W[1] :> bulbs;
+                :>> power = RealFunctions::sum(ledBulbs.power) + RealFunctions::sum(halogenBulbs.power);
             }
 
             part L2 : Light {
@@ -331,6 +352,7 @@ package Rooms {
                 :>> label = "L2";
                 :>> bulbSocketCount = 1;
                 part halogenBulbs : OsramG9Halogen33W[1] :> bulbs;
+                :>> power = RealFunctions::sum(halogenBulbs.power);
             }
 
             part L3 : Light {
@@ -338,6 +360,7 @@ package Rooms {
                 :>> label = "L3";
                 :>> bulbSocketCount = 1;
                 part halogenBulbs : OsramG9Halogen33W[1] :> bulbs;
+                :>> power = RealFunctions::sum(halogenBulbs.power);
             }
 
             // ----- Outlets -----
@@ -396,6 +419,10 @@ package Rooms {
 
         part hallway : Room {
             doc /* Koridorius */
+            :>> planX = 5;
+            :>> planY = 5;
+            :>> planWidth = 5;
+            :>> planDepth = 5;
 
             // ----- Lighting -----
 
@@ -406,6 +433,7 @@ package Rooms {
                 :>> label = "L1";
                 :>> bulbSocketCount = 6;
                 part ledBulbs : PhilipsE27Led13W[3] :> bulbs;
+                :>> power = RealFunctions::sum(ledBulbs.power);
             }
 
             // ----- Fixed appliances -----
@@ -498,6 +526,10 @@ package Rooms {
 
         part bathroom : Room {
             doc /* Vonia */
+            :>> planX = 1;
+            :>> planY = 5;
+            :>> planWidth = 4;
+            :>> planDepth = 4;
 
             // ----- Lighting -----
 
@@ -513,6 +545,7 @@ package Rooms {
                 :>> label = "L1";
                 :>> bulbSocketCount = 4;
                 part ledBulbs : LedvanceGu53Led8W[1] :> bulbs;
+                :>> power = RealFunctions::sum(ledBulbs.power);
             }
 
             part L2 : Light {
@@ -522,6 +555,7 @@ package Rooms {
                          */
                 :>> label = "L2";
                 :>> bulbSocketCount = 0;
+                :>> lengthM = 0.52;
             }
 
             // ----- Fixed appliances -----
@@ -585,6 +619,10 @@ package Rooms {
 
         part balcony : Room {
             doc /* Balkonas */
+            :>> planX = 18;
+            :>> planY = 3;
+            :>> planWidth = 2.5;
+            :>> planDepth = 2.5;
 
             part L1 : Light {
                 doc /* Lauko lempa */
@@ -592,6 +630,7 @@ package Rooms {
                 :>> label = "L1";
                 :>> bulbSocketCount = 1;
                 part halogenBulbs : VagnerE27Halogen28W[1] :> bulbs;
+                :>> power = RealFunctions::sum(halogenBulbs.power);
             }
         }
 

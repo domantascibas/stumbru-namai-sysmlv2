@@ -1,0 +1,11 @@
+{
+  "name": "stumbru-namai-sysmlv2",
+  "private": true,
+  "type": "module",
+  "description": "SysML v2 model of the apartment's electrical installation, with a live viewer",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node viewer/server.js",
+    "check": "sysml -validate model"
+  }
+}

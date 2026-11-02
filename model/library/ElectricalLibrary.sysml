@@ -54,6 +54,11 @@ package ElectricalLibrary {
 
     part def Room {
         attribute area : AreaValue;
+        // Floor plan placement in metres: top-left corner and size (x to the right, y down).
+        attribute planX : Real;
+        attribute planY : Real;
+        attribute planWidth : Real;
+        attribute planDepth : Real;
     }
 
     // ---------------------------------------------------------------
@@ -64,12 +69,24 @@ package ElectricalLibrary {
         doc /* Anything connected to a panel circuit. */
         attribute label : String;   // label on the floor plan, e.g. "R1", "S2"
         attribute notes : String;
+        // Optional position on the floor plan, in metres from the room's top-left corner.
+        // Devices without a position are placed automatically by the viewer.
+        attribute planX : Real;
+        attribute planY : Real;
+
+        // Roll-up: rated power connected through this device (evaluated by the tool).
+        // The model describes the installation only; what is switched on is up to
+        // the viewer's simulator.
+        attribute connectedLoad : PowerValue default = 0 [W];
     }
 
     abstract part def Load :> ElectricalDevice {
         doc /* A device that consumes power itself. */
         attribute product : String;     // manufacturer and model
-        attribute power : PowerValue;   // rated (maximum) power from the rating plate
+        // Rated (maximum) power from the rating plate. Unknown power counts as 0 W
+        // in the roll-up; the viewer flags such devices.
+        attribute power : PowerValue default = 0 [W];
+        attribute :>> connectedLoad default = power;
     }
 
     part def Outlet :> ElectricalDevice {
@@ -77,11 +94,16 @@ package ElectricalLibrary {
         attribute hasEarth : Boolean default = true;
         attribute isWaterproof : Boolean default = false;   // IP44+
         attribute hasDataSocket : Boolean default = false;  // RJ45 in the same frame
-        ref part pluggedIn : PluggedAppliance[0..*];
+        ref part pluggedIn : PluggedAppliance[0..*] default = ();
+        attribute :>> connectedLoad default = RealFunctions::sum(pluggedIn.connectedLoad);
     }
 
     part def Light :> Load {
+        doc /* A light with bulbs sets its power to the sum of its bulbs, e.g.
+             * `:>> power = RealFunctions::sum(ledBulbs.power);`
+             */
         attribute bulbSocketCount : Natural default = 1;   // number of bulb sockets (not bulbs installed)
+        attribute lengthM : Real;   // length of a line luminaire (LED strip), metres
         part bulbs : Bulb[0..*];                      // bulbs currently installed (if known); may be fewer than bulbSocketCount
     }
 
@@ -234,7 +256,8 @@ package ElectricalLibrary {
     part def PowerStrip :> PluggedAppliance {
         doc /* Extension cord / power strip plugged into an outlet. */
         attribute socketCount : Natural;
-        ref part pluggedIn : PluggedAppliance[0..*];
+        ref part pluggedIn : PluggedAppliance[0..*] default = ();
+        attribute :>> connectedLoad default = RealFunctions::sum(pluggedIn.connectedLoad);
     }
 
     // ---------------------------------------------------------------
@@ -242,17 +265,43 @@ package ElectricalLibrary {
     // ---------------------------------------------------------------
 
     abstract part def ProtectiveDevice {
+        doc /* Devices downstream of this one are modelled as its nested parts and
+             * also listed in `downstream`, which the load roll-up sums over.
+             */
         attribute label : String;   // label in the panel, e.g. "Q1", "F1"
         attribute name : String;    // text on the panel, e.g. "Kitchen outlets"
         attribute product : String; // manufacturer series, e.g. "ETI ETIMAT 6"
         attribute ratedCurrent : ElectricCurrentValue;
         attribute poles : Natural default = 1;
+        attribute phase : Phase default = Phase::L1;   // used by single-pole devices
+        ref part feeds : ElectricalDevice[0..*] default = ();
+        ref part downstream : ProtectiveDevice[0..*] default = ();
+
+        attribute nominalVoltage : ElectricPotentialValue default = 230 [V];
+
+        // ----- Connected load roll-up (evaluated by the tool) -----
+        // Rated power of everything installed downstream, per phase; a multi-pole
+        // device spreads its directly fed load evenly over the phases (actual split
+        // unknown). What is running at a given moment is simulated by the viewer.
+        attribute connectedLoad : PowerValue default = feedLoad + downstreamLoad;
+        attribute connectedLoadL1 : PowerValue default =
+            (if poles >= 3 ? feedLoad / 3 else if phase == Phase::L1 ? feedLoad else 0 [W]) + downstreamLoadL1;
+        attribute connectedLoadL2 : PowerValue default =
+            (if poles >= 3 ? feedLoad / 3 else if phase == Phase::L2 ? feedLoad else 0 [W]) + downstreamLoadL2;
+        attribute connectedLoadL3 : PowerValue default =
+            (if poles >= 3 ? feedLoad / 3 else if phase == Phase::L3 ? feedLoad else 0 [W]) + downstreamLoadL3;
+        // Helpers: directly fed and downstream parts of the sums above.
+        attribute feedLoad : PowerValue default = RealFunctions::sum(feeds.connectedLoad) as PowerValue;
+        attribute downstreamLoad : PowerValue default = RealFunctions::sum(downstream.connectedLoad) as PowerValue;
+        attribute downstreamLoadL1 : PowerValue default = RealFunctions::sum(downstream.connectedLoadL1) as PowerValue;
+        attribute downstreamLoadL2 : PowerValue default = RealFunctions::sum(downstream.connectedLoadL2) as PowerValue;
+        attribute downstreamLoadL3 : PowerValue default = RealFunctions::sum(downstream.connectedLoadL3) as PowerValue;
     }
 
     part def MainSwitch :> ProtectiveDevice;
 
     part def Rcd :> ProtectiveDevice {
-        doc /* Residual current device. Breakers downstream of it are modelled as its nested parts. */
+        doc /* Residual current device. */
         attribute residualCurrent : ElectricCurrentValue;   // e.g. 0.03 [A]
         attribute rcdType : RcdType;
     }
@@ -261,12 +310,7 @@ package ElectricalLibrary {
         doc /* One circuit breaker = one circuit. */
         attribute tripCurve : TripCurve default = TripCurve::B;
         attribute breakingCapacity : ElectricCurrentValue;   // e.g. 6000 [A]
-        attribute phase : Phase default = Phase::L1;
         attribute cableCrossSectionMm2 : Real;   // e.g. 1.5, 2.5
-        ref part feeds : ElectricalDevice[0..*];
-
-        // TODO: once power values are filled in, compute the circuit load here, e.g.
-        // attribute totalPower : PowerValue = sum(...);
     }
 
     part def DistributionBoard {

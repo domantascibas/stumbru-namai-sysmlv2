@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buto elektra</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">⚡</span>
+      <div>
+        <h1>Buto elektra</h1>
+        <p class="subtitle">SysML v2 modelis, rodomas gyvai</p>
+      </div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="status" id="status"><span class="dot"></span><span class="text">Jungiamasi…</span></div>
+  </header>
+
+  <div class="banner" id="banner" hidden></div>
+
+  <main class="layout">
+    <section class="card plan-card">
+      <div class="card-head">
+        <h2>Butas</h2>
+        <div class="legend">
+          <span><svg viewBox="-24 -24 48 48"><circle r="16"/><path d="M-11 -11 L11 11 M11 -11 L-11 11"/></svg>šviestuvas</span>
+          <span><svg viewBox="-24 -6 48 36"><path d="M-13 24 A13 13 0 0 1 13 24 Z M0 0 V11 M-13 11 H13"/></svg>rozetė</span>
+          <span><svg viewBox="-12 -12 40 40"><circle r="5"/><path d="M3.4 3.4 L18 18 M14 22 L22 14"/></svg>jungiklis</span>
+          <span><svg viewBox="-18 -18 36 36"><rect x="-15" y="-15" width="30" height="30"/></svg>prietaisas</span>
+          <span><i class="lg ph L1"></i>L1</span>
+          <span><i class="lg ph L2"></i>L2</span>
+          <span><i class="lg ph L3"></i>L3</span>
+          <span><i class="lg dead"></i>be įtampos</span>
+        </div>
+        <button class="ghost" id="all-on" title="Įjungti visus prietaisus ir šviesas: didžiausios apkrovos testas">Viską įjungti</button>
+        <button class="ghost" id="all-off" title="Išjungti visus prietaisus ir jungiklius, įjungti saugiklius">Viską išjungti</button>
+        <button class="ghost" id="reset-view" title="Atstatyti vaizdą">Visas planas</button>
+      </div>
+      <svg id="plan" role="img" aria-label="Buto planas"></svg>
+      <p class="hint">Spustelėjus saugiklį, jungiklį, lempą ar prietaisą, jis įjungiamas arba išjungiamas (<kbd>Shift</kbd> + spustelėjimas tik parodo detales). Ratukas keičia mastelį, tempimas slenka planą.</p>
+    </section>
+
+    <aside class="side">
+      <section class="card">
+        <div class="card-head"><h2>Fazės</h2><span class="muted">simuliacija</span></div>
+        <div id="phases"></div>
+      </section>
+      <section class="card">
+        <div class="card-head"><h2>Skydelis</h2><span class="muted">spustelėkite saugiklį</span></div>
+        <div id="panel"></div>
+      </section>
+      <section class="card" id="inspector-card">
+        <div class="card-head"><h2 id="inspector-title">Detalės</h2><button class="ghost" id="clear-selection" hidden>Uždaryti</button></div>
+        <div id="inspector"></div>
+      </section>
+      <section class="card" id="checks-card">
+        <div class="card-head"><h2>Modelio patikra</h2><span class="muted" id="tool-version"></span></div>
+        <div id="checks"></div>
+      </section>
+      <section class="card" id="spares-card" hidden>
+        <div class="card-head"><h2>Atsarginės lemputės</h2></div>
+        <div id="spares"></div>
+      </section>
+    </aside>
+  </main>
+
+  <div class="toast" id="toast" hidden></div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

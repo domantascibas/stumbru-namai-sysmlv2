@@ -549,7 +549,7 @@ svg.addEventListener('pointerdown', (e) => {
   const wy = toWorldY(py);
   cursor = { x: wx, y: wy };
   
-  // Check if clicking on a vertex (for polygon editing)
+  // Check if clicking on a vertex (for polygon editing) - requires room to be selected
   if (selectedRoomId) {
     const room = findRoomById(selectedRoomId);
     if (room && room.type === 'polygon' && room.vertices) {
@@ -577,12 +577,37 @@ svg.addEventListener('pointerdown', (e) => {
         roomDrag.originalX = room.planX;
         roomDrag.originalY = room.planY;
       }
-      dragOffset = { x: wx - (room.type === 'polygon' ? room.vertices[0][0] : room.planX),
-                     y: wy - (room.type === 'polygon' ? room.vertices[0][1] : room.planY) };
       svg.setPointerCapture(e.pointerId);
       e.preventDefault();
       return;
     }
+  }
+  
+  // Check if clicking on ANY room (not just selected) to start dragging
+  // Find the topmost room at this position
+  let clickedRoom = null;
+  for (let i = layout.rooms.length - 1; i >= 0; i--) {
+    const r = layout.rooms[i];
+    if (pointInRoom(wx, wy, r)) {
+      clickedRoom = r;
+      break;
+    }
+  }
+  
+  if (clickedRoom) {
+    // Start dragging this room
+    selectedRoomId = clickedRoom.id;
+    roomDrag = { roomId: clickedRoom.id, startX: wx, startY: wy };
+    // Store original position
+    if (clickedRoom.type === 'polygon') {
+      roomDrag.originalVertices = JSON.parse(JSON.stringify(clickedRoom.vertices));
+    } else {
+      roomDrag.originalX = clickedRoom.planX;
+      roomDrag.originalY = clickedRoom.planY;
+    }
+    svg.setPointerCapture(e.pointerId);
+    e.preventDefault();
+    return;
   }
   
   // Otherwise start panning
@@ -662,20 +687,32 @@ svg.addEventListener('click', (e) => {
   const wx = toWorldX(px);
   const wy = toWorldY(py);
   
-  // Check if clicked on a room
+  // Don't open edit if this was part of a drag
+  if (roomDrag || vertexDrag || panDrag) {
+    // Keep the selection but don't open edit
+    render();
+    return;
+  }
+  
+  // Check if clicked on a room - double click to edit
   for (const r of layout.rooms) {
     if (pointInRoom(wx, wy, r)) {
-      // Select the room
+      // Single click: select the room
       selectedRoomId = r.id;
-      startEdit(r.id);
       render();
       return;
     }
   }
   
-  // If not editing and clicked on empty space, could start creating a room
+  // Double click on empty space to create room
+  if (e.detail === 2) {
+    startCreate();
+    roomXEl.value = snap(wx);
+    roomYEl.value = snap(wy);
+  }
+  
+  // Ctrl+click to create room at cursor position
   if (e.ctrlKey || e.metaKey) {
-    // Ctrl+click to create room at cursor position
     startCreate();
     roomXEl.value = snap(wx);
     roomYEl.value = snap(wy);
@@ -685,12 +722,17 @@ svg.addEventListener('pointerup', () => {
   if (roomDrag) {
     // Save the new position
     saveLayout();
+    updateAreaDisplay();
     updateRoomList();
+    // Keep the room selected after dragging
+    selectedRoomId = roomDrag.roomId;
     roomDrag = null;
+    render();
   }
   if (vertexDrag) {
     // Save the new vertex position
     saveLayout();
+    updateAreaDisplay();
     updateRoomList();
     vertexDrag = null;
   }

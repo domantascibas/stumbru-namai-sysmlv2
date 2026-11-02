@@ -1,3 +1,6 @@
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+
 const svg = document.getElementById('map');
 const coordsEl = document.getElementById('coords');
 const gridStepEl = document.getElementById('grid-step');
@@ -813,14 +816,18 @@ window.addEventListener('keydown', (e) => { if (e.key === 'f') fit(); });
 window.addEventListener('resize', render);
 
 // Event listeners for room management
-roomsBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  toggleDropdown();
-});
-addRoomBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  startCreate();
-});
+if (roomsBtn) {
+  roomsBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDropdown();
+  });
+}
+if (addRoomBtn) {
+  addRoomBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    startCreate();
+  });
+}
 roomForm.addEventListener('submit', saveRoom);
 cancelEditBtn.addEventListener('click', cancelEdit);
 deleteRoomBtn.addEventListener('click', () => {
@@ -852,3 +859,5 @@ try {
 } catch (err) {
   coordsEl.textContent = `klaida: ${err.message}`;
 }
+
+}); // End of DOMContentLoaded

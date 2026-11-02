@@ -3,12 +3,12 @@
   "unit": "m",
   "origin": "top-left, x right, y down",
   "rooms": [
-    { "id": "livingKitchen", "name": "Svetainė + Virtuvė", "planX": 10, "planY": 0, "planWidth": 8, "planDepth": 8 },
-    { "id": "kidsRoom", "name": "Vaikų kambarys", "planX": 5, "planY": 0, "planWidth": 5, "planDepth": 5 },
-    { "id": "bedroom", "name": "Miegamasis", "planX": 0, "planY": 0, "planWidth": 5, "planDepth": 5 },
-    { "id": "hallway", "name": "Koridorius", "planX": 5, "planY": 5, "planWidth": 5, "planDepth": 5 },
-    { "id": "bathroom", "name": "Vonia", "planX": 1, "planY": 5, "planWidth": 4, "planDepth": 4 },
-    { "id": "balcony", "name": "Balkonas", "planX": 18, "planY": 3, "planWidth": 2.5, "planDepth": 2.5 }
+    { "id": "livingKitchen", "name": "Svetainė + Virtuvė", "type": "rect", "planX": 10, "planY": 0, "planWidth": 8, "planDepth": 8 },
+    { "id": "kidsRoom", "name": "Vaikų kambarys", "type": "rect", "planX": 5, "planY": 0, "planWidth": 5, "planDepth": 5 },
+    { "id": "bedroom", "name": "Miegamasis", "type": "rect", "planX": 0, "planY": 0, "planWidth": 5, "planDepth": 5 },
+    { "id": "hallway", "name": "Koridorius", "type": "polygon", "vertices": [[5, 5], [10, 5], [10, 7], [8, 7], [8, 10], [5, 10]] },
+    { "id": "bathroom", "name": "Vonia", "type": "rect", "planX": 1, "planY": 5, "planWidth": 4, "planDepth": 4 },
+    { "id": "balcony", "name": "Balkonas", "type": "rect", "planX": 18, "planY": 3, "planWidth": 2.5, "planDepth": 2.5 }
   ],
   "devices": []
 }

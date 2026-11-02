@@ -256,9 +256,40 @@ h1 { font-size: 17px; margin: 0; }
   box-sizing: border-box;
 }
 
-.form-group input:focus {
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
   outline: none;
   border-color: var(--accent);
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  box-sizing: border-box;
+  resize: vertical;
+  font-family: monospace;
+}
+
+.form-group select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.form-group small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
 }
 
 .form-actions {
@@ -319,12 +350,33 @@ h1 { font-size: 17px; margin: 0; }
 .grid-label { fill: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
 .axis-label { fill: var(--accent); font-size: 11px; font-weight: 600; }
 
-.room rect { fill: var(--room); stroke: var(--room-line); }
-.room.selected rect { fill: var(--accent); opacity: 0.3; }
-.room.selected rect.selected { stroke: var(--accent); stroke-width: 3; }
+.room rect, .room polygon { fill: var(--room); stroke: var(--room-line); }
+.room.selected rect, .room.selected polygon { fill: var(--accent); opacity: 0.3; }
+.room.dragging rect, .room.dragging polygon { fill: var(--accent); opacity: 0.5; stroke: var(--accent); stroke-width: 2; }
 .room-name { fill: var(--text); font-size: 15px; font-weight: 600; text-anchor: middle; }
 .room-size { fill: var(--muted); font-size: 11px; text-anchor: middle; font-variant-numeric: tabular-nums; }
 .room-origin { fill: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+
+/* Vertex handles for polygon editing */
+.vertex {
+  cursor: move;
+}
+.vertex circle {
+  fill: var(--accent);
+  stroke: white;
+  stroke-width: 2;
+  r: 6;
+}
+.vertex circle:hover {
+  r: 8;
+  fill: white;
+  stroke: var(--accent);
+}
+.vertex.selected circle {
+  fill: white;
+  stroke: var(--accent);
+  r: 8;
+}
 
 .device circle { fill: var(--surface-2); stroke: var(--accent); stroke-width: 1.6; }
 .device text { fill: var(--text); font-size: 11px; }

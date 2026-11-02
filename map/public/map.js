@@ -16,10 +16,14 @@ const editTitleEl = document.getElementById('edit-title');
 const roomForm = document.getElementById('room-form');
 const roomIdEl = document.getElementById('room-id');
 const roomNameEl = document.getElementById('room-name');
+const roomTypeEl = document.getElementById('room-type');
 const roomXEl = document.getElementById('room-x');
 const roomYEl = document.getElementById('room-y');
 const roomWidthEl = document.getElementById('room-width');
 const roomDepthEl = document.getElementById('room-depth');
+const roomVerticesEl = document.getElementById('room-vertices');
+const rectFormEl = document.getElementById('rect-form');
+const polygonFormEl = document.getElementById('polygon-form');
 const deleteRoomBtn = document.getElementById('delete-room');
 const cancelEditBtn = document.getElementById('cancel-edit');
 
@@ -30,9 +34,14 @@ const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&a
 let layout = { step: 0.1, rooms: [], devices: [] };
 const view = { s: 60, ox: 60, oy: 60 };
 let cursor = null;
-let drag = null;
+let panDrag = null;
+let roomDrag = null;
+let dragStartPos = null;
+let dragOffset = { x: 0, y: 0 };
 let selectedRoomId = null;
 let editMode = false;
+let selectedVertexIndex = null;
+let vertexDrag = null;
 
 const STEP_CANDIDATES = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100];
 const MIN_PX = 7;
@@ -52,6 +61,17 @@ function devicePos(d) {
 
 // Calculate room area
 function calculateRoomArea(room) {
+  if (room.type === 'polygon' && room.vertices && room.vertices.length > 2) {
+    // Use shoelace formula for polygon area
+    let area = 0;
+    const n = room.vertices.length;
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      area += room.vertices[i][0] * room.vertices[j][1];
+      area -= room.vertices[j][0] * room.vertices[i][1];
+    }
+    return Math.abs(area) / 2;
+  }
   return room.planWidth * room.planDepth;
 }
 
@@ -102,11 +122,28 @@ function updateAreaDisplay() {
 }
 
 // Update room list
+// Calculate center of a room
+function getRoomCenter(room) {
+  if (room.type === 'polygon' && room.vertices && room.vertices.length > 0) {
+    const xs = room.vertices.map(v => v[0]);
+    const ys = room.vertices.map(v => v[1]);
+    return {
+      x: (Math.min(...xs) + Math.max(...xs)) / 2,
+      y: (Math.min(...ys) + Math.max(...ys)) / 2
+    };
+  }
+  return {
+    x: room.planX + room.planWidth / 2,
+    y: room.planY + room.planDepth / 2
+  };
+}
+
 function updateRoomList() {
   roomListEl.innerHTML = layout.rooms.map(room => {
     const area = calculateRoomArea(room);
+    const typeLabel = room.type === 'polygon' ? '🔺' : '▭';
     return `<div class="room-item" data-id="${escapeHtml(room.id)}">
-      <span class="name">${escapeHtml(room.name)}</span>
+      <span class="name">${typeLabel} ${escapeHtml(room.name)}</span>
       <span class="area">${nfArea.format(area)} m²</span>
       <span class="actions">
         <button class="btn-icon edit-btn" data-id="${escapeHtml(room.id)}" title="Redaguoti">✏️</button>
@@ -144,14 +181,13 @@ function updateRoomList() {
       if (room) {
         // Select room and center view
         selectedRoomId = roomId;
-        const centerX = room.planX + room.planWidth / 2;
-        const centerY = room.planY + room.planDepth / 2;
+        const center = getRoomCenter(room);
         const w = svg.clientWidth;
         const h = svg.clientHeight;
         if (w && h) {
           view.s = Math.min(Math.max(40, 60), 600);
-          view.ox = w / 2 - centerX * view.s;
-          view.oy = h / 2 - centerY * view.s;
+          view.ox = w / 2 - center.x * view.s;
+          view.oy = h / 2 - center.y * view.s;
         }
         closeDropdown();
         render();
@@ -169,6 +205,40 @@ function closeDropdown() {
   roomsDropdown.classList.remove('show');
 }
 
+// Update form visibility based on room type
+function updateFormVisibility(type) {
+  if (type === 'polygon') {
+    rectFormEl.style.display = 'none';
+    polygonFormEl.style.display = 'block';
+  } else {
+    rectFormEl.style.display = 'block';
+    polygonFormEl.style.display = 'none';
+  }
+}
+
+// Format vertices as text for textarea
+function formatVertices(vertices) {
+  if (!vertices) return '';
+  return vertices.map(v => `${v[0]},${v[1]}`).join('\n');
+}
+
+// Parse vertices from textarea
+function parseVertices(text) {
+  if (!text) return [];
+  const lines = text.split('\n');
+  const vertices = [];
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed) {
+      const parts = trimmed.split(',').map(p => parseFloat(p.trim())).filter(p => !isNaN(p));
+      if (parts.length >= 2) {
+        vertices.push([parts[0], parts[1]]);
+      }
+    }
+  }
+  return vertices;
+}
+
 // Start editing a room
 function startEdit(roomId) {
   const room = findRoomById(roomId);
@@ -182,10 +252,17 @@ function startEdit(roomId) {
   
   roomIdEl.value = room.id;
   roomNameEl.value = room.name;
-  roomXEl.value = room.planX;
-  roomYEl.value = room.planY;
-  roomWidthEl.value = room.planWidth;
-  roomDepthEl.value = room.planDepth;
+  roomTypeEl.value = room.type || 'rect';
+  updateFormVisibility(roomTypeEl.value);
+  
+  if (room.type === 'polygon' && room.vertices) {
+    roomVerticesEl.value = formatVertices(room.vertices);
+  } else {
+    roomXEl.value = room.planX;
+    roomYEl.value = room.planY;
+    roomWidthEl.value = room.planWidth;
+    roomDepthEl.value = room.planDepth;
+  }
   
   deleteRoomBtn.style.display = 'inline-block';
   roomNameEl.focus();
@@ -201,14 +278,35 @@ function startCreate() {
   
   roomIdEl.value = '';
   roomNameEl.value = '';
+  roomTypeEl.value = 'rect';
+  updateFormVisibility('rect');
+  
   roomXEl.value = cursor ? snap(cursor.x) : 0;
   roomYEl.value = cursor ? snap(cursor.y) : 0;
   roomWidthEl.value = 4;
   roomDepthEl.value = 4;
+  roomVerticesEl.value = '';
   
   deleteRoomBtn.style.display = 'none';
   roomNameEl.focus();
 }
+
+// Event listener for room type change
+roomTypeEl.addEventListener('change', () => {
+  updateFormVisibility(roomTypeEl.value);
+});
+
+// Vertex management buttons
+document.getElementById('add-vertex')?.addEventListener('click', () => {
+  const current = roomVerticesEl.value;
+  const coords = cursor ? `${snap(cursor.x)},${snap(cursor.y)}` : '0,0';
+  roomVerticesEl.value = current ? `${current}\n${coords}` : coords;
+  roomVerticesEl.focus();
+});
+
+document.getElementById('clear-vertices')?.addEventListener('click', () => {
+  roomVerticesEl.value = '';
+});
 
 // Cancel editing
 function cancelEdit() {
@@ -237,14 +335,28 @@ async function saveRoom(e) {
   e.preventDefault();
   
   const roomId = roomIdEl.value || generateRoomId();
-  const room = {
-    id: roomId,
-    name: roomNameEl.value.trim() || 'Naujas kambarys',
-    planX: parseFloat(roomXEl.value) || 0,
-    planY: parseFloat(roomYEl.value) || 0,
-    planWidth: parseFloat(roomWidthEl.value) || 4,
-    planDepth: parseFloat(roomDepthEl.value) || 4
-  };
+  const type = roomTypeEl.value;
+  
+  let room;
+  if (type === 'polygon') {
+    const vertices = parseVertices(roomVerticesEl.value);
+    room = {
+      id: roomId,
+      type: 'polygon',
+      name: roomNameEl.value.trim() || 'Naujas kambarys',
+      vertices: vertices.length > 0 ? vertices : [[0, 0], [1, 0], [1, 1], [0, 1]]
+    };
+  } else {
+    room = {
+      id: roomId,
+      type: 'rect',
+      name: roomNameEl.value.trim() || 'Naujas kambarys',
+      planX: snap(parseFloat(roomXEl.value) || 0),
+      planY: snap(parseFloat(roomYEl.value) || 0),
+      planWidth: parseFloat(roomWidthEl.value) || 4,
+      planDepth: parseFloat(roomDepthEl.value) || 4
+    };
+  }
   
   const existingIndex = layout.rooms.findIndex(r => r.id === roomId);
   if (existingIndex >= 0) {
@@ -316,17 +428,59 @@ function render() {
   }
 
   for (const r of layout.rooms) {
-    const x = toScreenX(r.planX);
-    const y = toScreenY(r.planY);
-    const rw = r.planWidth * view.s;
-    const rh = r.planDepth * view.s;
-    const wall = Math.min(Math.max(0.1 * view.s, 2), 10);
     const isSelected = selectedRoomId === r.id;
-    out.push(`<g class="room ${isSelected ? 'selected' : ''}" data-id="${escapeHtml(r.id)}">
-      <rect x="${x}" y="${y}" width="${rw}" height="${rh}" stroke-width="${wall}" ${isSelected ? 'class="selected"' : ''}/>
-      <text class="room-origin" x="${x + wall + 6}" y="${y + wall + 16}">(${nf.format(r.planX)}, ${nf.format(r.planY)})</text>
-      <text class="room-name" x="${x + rw / 2}" y="${y + rh / 2 - 4}">${escapeHtml(r.name)}</text>
-      <text class="room-size" x="${x + rw / 2}" y="${y + rh / 2 + 16}">${nf.format(r.planWidth)} × ${nf.format(r.planDepth)} m</text>
+    const isDragging = roomDrag?.roomId === r.id;
+    const className = isDragging ? 'dragging' : (isSelected ? 'selected' : '');
+    
+    let shapeHtml = '';
+    let centerX, centerY;
+    
+    if (r.type === 'polygon' && r.vertices && r.vertices.length > 0) {
+      // Render polygon
+      const points = r.vertices.map(v => `${toScreenX(v[0])},${toScreenY(v[1])}`).join(' ');
+      const wall = Math.min(Math.max(0.1 * view.s, 1), 6);
+      shapeHtml = `<polygon points="${points}" stroke-width="${wall}" ${isSelected || isDragging ? 'class="selected"' : ''}/>`;
+      
+      // Calculate center for labels
+      const xs = r.vertices.map(v => v[0]);
+      const ys = r.vertices.map(v => v[1]);
+      centerX = (Math.min(...xs) + Math.max(...xs)) / 2;
+      centerY = (Math.min(...ys) + Math.max(...ys)) / 2;
+      
+      // Add vertex handles if this room is selected
+      if (isSelected) {
+        for (let i = 0; i < r.vertices.length; i++) {
+          const v = r.vertices[i];
+          const vx = toScreenX(v[0]);
+          const vy = toScreenY(v[1]);
+          const vClass = selectedVertexIndex === i ? 'selected' : '';
+          shapeHtml += `<g class="vertex ${vClass}" data-room="${escapeHtml(r.id)}" data-index="${i}">
+            <circle cx="${vx}" cy="${vy}" />
+          </g>`;
+        }
+      }
+    } else {
+      // Render rectangle
+      const x = toScreenX(r.planX);
+      const y = toScreenY(r.planY);
+      const rw = r.planWidth * view.s;
+      const rh = r.planDepth * view.s;
+      const wall = Math.min(Math.max(0.1 * view.s, 2), 10);
+      shapeHtml = `<rect x="${x}" y="${y}" width="${rw}" height="${rh}" stroke-width="${wall}" ${isSelected || isDragging ? 'class="selected"' : ''}/>`;
+      centerX = r.planX + r.planWidth / 2;
+      centerY = r.planY + r.planDepth / 2;
+    }
+    
+    const screenCenterX = toScreenX(centerX);
+    const screenCenterY = toScreenY(centerY);
+    
+    // Calculate area for display
+    const area = calculateRoomArea(r);
+    
+    out.push(`<g class="room ${className}" data-id="${escapeHtml(r.id)}" data-type="${r.type || 'rect'}">
+      ${shapeHtml}
+      <text class="room-name" x="${screenCenterX}" y="${screenCenterY - 4}">${escapeHtml(r.name)}</text>
+      <text class="room-size" x="${screenCenterX}" y="${screenCenterY + 16}">${nfArea.format(area)} m²</text>
     </g>`);
   }
 
@@ -360,7 +514,13 @@ function render() {
 function fit() {
   const pts = [[0, 0]];
   for (const r of layout.rooms) {
-    pts.push([r.planX, r.planY], [r.planX + r.planWidth, r.planY + r.planDepth]);
+    if (r.type === 'polygon' && r.vertices) {
+      for (const v of r.vertices) {
+        pts.push([v[0], v[1]]);
+      }
+    } else {
+      pts.push([r.planX, r.planY], [r.planX + r.planWidth, r.planY + r.planDepth]);
+    }
   }
   for (const d of layout.devices) pts.push([devicePos(d).x, devicePos(d).y]);
   const xs = pts.map((p) => p[0]);
@@ -384,18 +544,117 @@ function pointerPos(e) {
 }
 
 svg.addEventListener('pointerdown', (e) => {
-  drag = { cx: e.clientX, cy: e.clientY, ox: view.ox, oy: view.oy };
+  const { px, py } = pointerPos(e);
+  const wx = toWorldX(px);
+  const wy = toWorldY(py);
+  cursor = { x: wx, y: wy };
+  
+  // Check if clicking on a vertex (for polygon editing)
+  if (selectedRoomId) {
+    const room = findRoomById(selectedRoomId);
+    if (room && room.type === 'polygon' && room.vertices) {
+      for (let i = 0; i < room.vertices.length; i++) {
+        const v = room.vertices[i];
+        const dx = Math.abs(wx - v[0]);
+        const dy = Math.abs(wy - v[1]);
+        if (dx < 0.5 && dy < 0.5) {
+          vertexDrag = { roomId: room.id, vertexIndex: i };
+          dragStartPos = { x: wx, y: wy };
+          svg.setPointerCapture(e.pointerId);
+          e.preventDefault();
+          return;
+        }
+      }
+    }
+    
+    // Check if clicking on selected room to drag it
+    if (pointInRoom(wx, wy, room)) {
+      roomDrag = { roomId: room.id, startX: wx, startY: wy };
+      // Store original position
+      if (room.type === 'polygon') {
+        roomDrag.originalVertices = JSON.parse(JSON.stringify(room.vertices));
+      } else {
+        roomDrag.originalX = room.planX;
+        roomDrag.originalY = room.planY;
+      }
+      dragOffset = { x: wx - (room.type === 'polygon' ? room.vertices[0][0] : room.planX),
+                     y: wy - (room.type === 'polygon' ? room.vertices[0][1] : room.planY) };
+      svg.setPointerCapture(e.pointerId);
+      e.preventDefault();
+      return;
+    }
+  }
+  
+  // Otherwise start panning
+  panDrag = { cx: e.clientX, cy: e.clientY, ox: view.ox, oy: view.oy };
   svg.setPointerCapture(e.pointerId);
 });
 svg.addEventListener('pointermove', (e) => {
   const { px, py } = pointerPos(e);
-  cursor = { x: toWorldX(px), y: toWorldY(py) };
-  if (drag) {
-    view.ox = drag.ox + (e.clientX - drag.cx);
-    view.oy = drag.oy + (e.clientY - drag.cy);
+  const wx = toWorldX(px);
+  const wy = toWorldY(py);
+  cursor = { x: wx, y: wy };
+  
+  if (vertexDrag) {
+    // Drag vertex
+    const room = findRoomById(vertexDrag.roomId);
+    if (room && room.type === 'polygon') {
+      // Snap to grid
+      room.vertices[vertexDrag.vertexIndex] = [snap(wx), snap(wy)];
+    }
+    render();
+  } else if (roomDrag) {
+    // Drag room
+    const room = findRoomById(roomDrag.roomId);
+    if (room) {
+      const dx = wx - roomDrag.startX;
+      const dy = wy - roomDrag.startY;
+      
+      if (room.type === 'polygon') {
+        // Move all vertices
+        const newVertices = room.vertices.map(v => [snap(v[0] + dx), snap(v[1] + dy)]);
+        room.vertices = newVertices;
+        roomDrag.startX = wx;
+        roomDrag.startY = wy;
+      } else {
+        // Move rectangle
+        room.planX = snap(roomDrag.originalX + dx);
+        room.planY = snap(roomDrag.originalY + dy);
+        roomDrag.startX = wx;
+        roomDrag.startY = wy;
+      }
+      
+      updateAreaDisplay();
+    }
+    render();
+  } else if (panDrag) {
+    view.ox = panDrag.ox + (e.clientX - panDrag.cx);
+    view.oy = panDrag.oy + (e.clientY - panDrag.cy);
   }
   render();
 });
+
+// Check if point is inside polygon using ray casting algorithm
+function pointInPolygon(point, polygon) {
+  const [x, y] = point;
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [xi, yi] = polygon[i];
+    const [xj, yj] = polygon[j];
+    const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+// Check if point is inside room
+function pointInRoom(wx, wy, room) {
+  if (room.type === 'polygon' && room.vertices && room.vertices.length > 0) {
+    return pointInPolygon([wx, wy], room.vertices);
+  }
+  return wx >= room.planX && wx <= room.planX + room.planWidth &&
+         wy >= room.planY && wy <= room.planY + room.planDepth;
+}
 
 svg.addEventListener('click', (e) => {
   if (editMode) return;
@@ -405,8 +664,7 @@ svg.addEventListener('click', (e) => {
   
   // Check if clicked on a room
   for (const r of layout.rooms) {
-    if (wx >= r.planX && wx <= r.planX + r.planWidth &&
-        wy >= r.planY && wy <= r.planY + r.planDepth) {
+    if (pointInRoom(wx, wy, r)) {
       // Select the room
       selectedRoomId = r.id;
       startEdit(r.id);
@@ -423,8 +681,40 @@ svg.addEventListener('click', (e) => {
     roomYEl.value = snap(wy);
   }
 });
-svg.addEventListener('pointerup', () => { drag = null; });
-svg.addEventListener('pointercancel', () => { drag = null; });
+svg.addEventListener('pointerup', () => {
+  if (roomDrag) {
+    // Save the new position
+    saveLayout();
+    updateRoomList();
+    roomDrag = null;
+  }
+  if (vertexDrag) {
+    // Save the new vertex position
+    saveLayout();
+    updateRoomList();
+    vertexDrag = null;
+  }
+  panDrag = null;
+  dragStartPos = null;
+});
+svg.addEventListener('pointercancel', () => {
+  if (roomDrag) {
+    // Restore original position on cancel
+    const room = findRoomById(roomDrag.roomId);
+    if (room) {
+      if (room.type === 'polygon' && roomDrag.originalVertices) {
+        room.vertices = roomDrag.originalVertices;
+      } else if (roomDrag.originalX !== undefined) {
+        room.planX = roomDrag.originalX;
+        room.planY = roomDrag.originalY;
+      }
+    }
+    roomDrag = null;
+  }
+  vertexDrag = null;
+  panDrag = null;
+  dragStartPos = null;
+});
 svg.addEventListener('pointerleave', () => { cursor = null; render(); });
 svg.addEventListener('wheel', (e) => {
   e.preventDefault();

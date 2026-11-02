@@ -49,22 +49,46 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label for="room-x">X (m)</label>
-            <input type="number" id="room-x" step="0.1" required />
-          </div>
-          <div class="form-group">
-            <label for="room-y">Y (m)</label>
-            <input type="number" id="room-y" step="0.1" required />
+            <label for="room-type">Tipas</label>
+            <select id="room-type">
+              <option value="rect">Stačiakampis</option>
+              <option value="polygon">Daugiakampis</option>
+            </select>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="room-width">Plotis (m)</label>
-            <input type="number" id="room-width" step="0.1" min="0.1" required />
+        <div id="rect-form" class="form-rect">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="room-x">X (m)</label>
+              <input type="number" id="room-x" step="0.1" required />
+            </div>
+            <div class="form-group">
+              <label for="room-y">Y (m)</label>
+              <input type="number" id="room-y" step="0.1" required />
+            </div>
           </div>
-          <div class="form-group">
-            <label for="room-depth">Gylis (m)</label>
-            <input type="number" id="room-depth" step="0.1" min="0.1" required />
+          <div class="form-row">
+            <div class="form-group">
+              <label for="room-width">Plotis (m)</label>
+              <input type="number" id="room-width" step="0.1" min="0.1" required />
+            </div>
+            <div class="form-group">
+              <label for="room-depth">Gylis (m)</label>
+              <input type="number" id="room-depth" step="0.1" min="0.1" required />
+            </div>
+          </div>
+        </div>
+        <div id="polygon-form" class="form-polygon" style="display: none;">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Viršūnės (x,y metrais, atskirtos kableliu):</label>
+              <textarea id="room-vertices" rows="3" placeholder="Pvz: 0,0&#10;5,0&#10;5,5&#10;0,5"></textarea>
+              <small>Kiekviena viršūnė naujoje eilutėje arba atskirta kableliu</small>
+            </div>
+          </div>
+          <div class="form-row">
+            <button type="button" id="add-vertex" class="btn">+ Pridėti viršūnę</button>
+            <button type="button" id="clear-vertices" class="btn">Valyti</button>
           </div>
         </div>
         <div class="form-actions">

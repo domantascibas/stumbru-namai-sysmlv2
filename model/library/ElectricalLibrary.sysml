@@ -323,6 +323,7 @@ package ElectricalLibrary {
         }
 
         attribute nominalVoltage :> ISQElectromagnetism::voltage default = 230 [SI::V];
+        attribute maxLoadPower :> ISQElectromagnetism::electricPower = ratedCurrent * nominalVoltage;
 
         // ----- Connected load roll-up (evaluated by the tool) -----
         // Rated power of everything installed downstream, per phase; a multi-pole

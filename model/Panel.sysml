@@ -328,6 +328,53 @@ package Panel {
                 interface f12ToBathroomL1 : Wired connect F12.lineOut to apartment.bathroom.L1.plug;
                 interface f13ToModemBox : Wired connect F13.lineOut to apartment.hallway.modemBox.plug;
 
+                // F2 remaining: R3, R4, R5
+                interface f2ToR3 : Wired connect F2.lineOut to apartment.kidsRoom.R3.plugPoint;
+                interface f2ToR4 : Wired connect F2.lineOut to apartment.kidsRoom.R4.plugPoint;
+                interface f2ToR5 : Wired connect F2.lineOut to apartment.kidsRoom.R5.plugPoint;
+
+                // F3 remaining: R3, R4, R7, R8, R9, R10, R11
+                interface f3ToBedroomR3 : Wired connect F3.lineOut to apartment.bedroom.R3.plugPoint;
+                interface f3ToBedroomR4 : Wired connect F3.lineOut to apartment.bedroom.R4.plugPoint;
+                interface f3ToLivingR7 : Wired connect F3.lineOut to apartment.livingKitchen.R7.plugPoint;
+                interface f3ToLivingR8 : Wired connect F3.lineOut to apartment.livingKitchen.R8.plugPoint;
+                interface f3ToLivingR9 : Wired connect F3.lineOut to apartment.livingKitchen.R9.plugPoint;
+                interface f3ToLivingR10 : Wired connect F3.lineOut to apartment.livingKitchen.R10.plugPoint;
+                interface f3ToLivingR11 : Wired connect F3.lineOut to apartment.livingKitchen.R11.plugPoint;
+
+                // F4: bathroom.L2, R2
+                interface f4ToBathroomL2 : Wired connect F4.lineOut to apartment.bathroom.L2.plug;
+                interface f4ToBathroomR2 : Wired connect F4.lineOut to apartment.bathroom.R2.plugPoint;
+
+                // F5: bathroom.towelRail
+                interface f5ToTowelRail : Wired connect F5.lineOut to apartment.bathroom.towelRail.plug;
+
+                // F6: bathroom.floorHeating
+                interface f6ToFloorHeating : Wired connect F6.lineOut to apartment.bathroom.floorHeating.plug;
+
+                // F8: livingKitchen.R3, R5, R6, L4
+                interface f8ToR3 : Wired connect F8.lineOut to apartment.livingKitchen.R3.plugPoint;
+                interface f8ToR5 : Wired connect F8.lineOut to apartment.livingKitchen.R5.plugPoint;
+                interface f8ToR6 : Wired connect F8.lineOut to apartment.livingKitchen.R6.plugPoint;
+                interface f8ToL4 : Wired connect F8.lineOut to apartment.livingKitchen.L4.plug;
+
+                // F9: bathroom.R1, R3
+                interface f9ToR1 : Wired connect F9.lineOut to apartment.bathroom.R1.plugPoint;
+                interface f9ToR3 : Wired connect F9.lineOut to apartment.bathroom.R3.plugPoint;
+
+                // F10: livingKitchen.R1, R2, hood
+                interface f10ToR1 : Wired connect F10.lineOut to apartment.livingKitchen.R1.plugPoint;
+                interface f10ToR2 : Wired connect F10.lineOut to apartment.livingKitchen.R2.plugPoint;
+                interface f10ToHood : Wired connect F10.lineOut to apartment.livingKitchen.hood.plug;
+
+                // F11 remaining: L3, bedroom.L1, kidsRoom.L1, hallway.L1, balcony.L1, X1
+                interface f11ToLivingL3 : Wired connect F11.lineOut to apartment.livingKitchen.L3.plug;
+                interface f11ToBedroomL1 : Wired connect F11.lineOut to apartment.bedroom.L1.plug;
+                interface f11ToKidsL1 : Wired connect F11.lineOut to apartment.kidsRoom.L1.plug;
+                interface f11ToHallwayL1 : Wired connect F11.lineOut to apartment.hallway.L1.plug;
+                interface f11ToBalconyL1 : Wired connect F11.lineOut to apartment.balcony.L1.plug;
+                interface f11ToX1 : Wired connect F11.lineOut to apartment.livingKitchen.X1.plug;
+
                 // Power budget constraints (book pattern #6)
                 assert constraint F2PowerBudget {
                     apartment.kidsRoom.R1.connectedLoad + apartment.kidsRoom.R2.connectedLoad + 

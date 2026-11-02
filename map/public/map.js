@@ -442,8 +442,14 @@ window.addEventListener('keydown', (e) => { if (e.key === 'f') fit(); });
 window.addEventListener('resize', render);
 
 // Event listeners for room management
-roomsBtn.addEventListener('click', toggleDropdown);
-addRoomBtn.addEventListener('click', startCreate);
+roomsBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleDropdown();
+});
+addRoomBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  startCreate();
+});
 roomForm.addEventListener('submit', saveRoom);
 cancelEditBtn.addEventListener('click', cancelEdit);
 deleteRoomBtn.addEventListener('click', () => {
@@ -452,10 +458,13 @@ deleteRoomBtn.addEventListener('click', () => {
 modalOverlay.addEventListener('click', cancelEdit);
 
 // Close dropdown when clicking outside
-document.addEventListener('click', (e) => {
-  if (!roomsDropdown.contains(e.target) && e.target !== roomsBtn) {
-    closeDropdown();
-  }
+// But prevent closing when clicking inside the dropdown
+roomsDropdown.addEventListener('click', (e) => {
+  e.stopPropagation();
+});
+
+document.addEventListener('click', () => {
+  closeDropdown();
 });
 
 try {

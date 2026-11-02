@@ -6,10 +6,12 @@ const fitBtn = document.getElementById('fit');
 
 // UI elements
 const totalAreaEl = document.getElementById('total-area');
-const roomAreasEl = document.getElementById('room-areas');
 const roomListEl = document.getElementById('room-list');
+const roomsBtn = document.getElementById('rooms-btn');
+const roomsDropdown = document.getElementById('rooms-dropdown');
 const addRoomBtn = document.getElementById('add-room');
 const editPanel = document.getElementById('edit-panel');
+const modalOverlay = document.getElementById('modal-overlay');
 const editTitleEl = document.getElementById('edit-title');
 const roomForm = document.getElementById('room-form');
 const roomIdEl = document.getElementById('room-id');
@@ -96,21 +98,16 @@ async function saveLayout() {
 // Update area display
 function updateAreaDisplay() {
   const total = calculateTotalArea();
-  totalAreaEl.textContent = `${nfArea.format(total)} m²`;
-  
-  // Update individual room areas
-  roomAreasEl.innerHTML = layout.rooms.map(room => {
-    const area = calculateRoomArea(room);
-    return `<div class="room-area-item"><span class="name" title="${escapeHtml(room.name)}">${escapeHtml(room.name)}</span><span class="area">${nfArea.format(area)} m²</span></div>`;
-  }).join('');
+  totalAreaEl.textContent = `Bendras plotas: ${nfArea.format(total)} m²`;
 }
 
 // Update room list
 function updateRoomList() {
   roomListEl.innerHTML = layout.rooms.map(room => {
     const area = calculateRoomArea(room);
-    return `<div class="room-item" data-id="${escapeHtml(room.id)}" title="${escapeHtml(room.name)} - ${nfArea.format(area)} m²">
+    return `<div class="room-item" data-id="${escapeHtml(room.id)}">
       <span class="name">${escapeHtml(room.name)}</span>
+      <span class="area">${nfArea.format(area)} m²</span>
       <span class="actions">
         <button class="btn-icon edit-btn" data-id="${escapeHtml(room.id)}" title="Redaguoti">✏️</button>
         <button class="btn-icon delete-btn" data-id="${escapeHtml(room.id)}" title="Šalinti">🗑️</button>
@@ -118,11 +115,16 @@ function updateRoomList() {
     </div>`;
   }).join('');
   
+  if (layout.rooms.length === 0) {
+    roomListEl.innerHTML = '<div class="room-item" style="color: var(--muted);">Nėra kambarių</div>';
+  }
+  
   // Add event listeners to edit and delete buttons
   document.querySelectorAll('.edit-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       startEdit(btn.dataset.id);
+      closeDropdown();
     });
   });
   
@@ -130,6 +132,7 @@ function updateRoomList() {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       deleteRoom(btn.dataset.id);
+      closeDropdown();
     });
   });
   
@@ -139,20 +142,31 @@ function updateRoomList() {
       const roomId = item.dataset.id;
       const room = findRoomById(roomId);
       if (room) {
-        // Center view on room
+        // Select room and center view
+        selectedRoomId = roomId;
         const centerX = room.planX + room.planWidth / 2;
         const centerY = room.planY + room.planDepth / 2;
         const w = svg.clientWidth;
         const h = svg.clientHeight;
         if (w && h) {
           view.s = Math.min(Math.max(40, 60), 600);
-          view.ox = (w - room.planWidth * view.s) / 2 - room.planX * view.s;
-          view.oy = (h - room.planDepth * view.s) / 2 - room.planY * view.s;
-          render();
+          view.ox = w / 2 - centerX * view.s;
+          view.oy = h / 2 - centerY * view.s;
         }
+        closeDropdown();
+        render();
       }
     });
   });
+}
+
+// Dropdown management
+function toggleDropdown() {
+  roomsDropdown.classList.toggle('show');
+}
+
+function closeDropdown() {
+  roomsDropdown.classList.remove('show');
 }
 
 // Start editing a room
@@ -163,6 +177,7 @@ function startEdit(roomId) {
   selectedRoomId = roomId;
   editMode = true;
   editPanel.style.display = 'block';
+  modalOverlay.style.display = 'block';
   editTitleEl.textContent = 'Redaguoti kambarį';
   
   roomIdEl.value = room.id;
@@ -181,6 +196,7 @@ function startCreate() {
   selectedRoomId = null;
   editMode = true;
   editPanel.style.display = 'block';
+  modalOverlay.style.display = 'block';
   editTitleEl.textContent = 'Pridėti kambarį';
   
   roomIdEl.value = '';
@@ -197,6 +213,7 @@ function startCreate() {
 // Cancel editing
 function cancelEdit() {
   editPanel.style.display = 'none';
+  modalOverlay.style.display = 'none';
   selectedRoomId = null;
   editMode = false;
 }
@@ -425,11 +442,20 @@ window.addEventListener('keydown', (e) => { if (e.key === 'f') fit(); });
 window.addEventListener('resize', render);
 
 // Event listeners for room management
+roomsBtn.addEventListener('click', toggleDropdown);
 addRoomBtn.addEventListener('click', startCreate);
 roomForm.addEventListener('submit', saveRoom);
 cancelEditBtn.addEventListener('click', cancelEdit);
 deleteRoomBtn.addEventListener('click', () => {
   if (selectedRoomId) deleteRoom(selectedRoomId);
+});
+modalOverlay.addEventListener('click', cancelEdit);
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  if (!roomsDropdown.contains(e.target) && e.target !== roomsBtn) {
+    closeDropdown();
+  }
 });
 
 try {

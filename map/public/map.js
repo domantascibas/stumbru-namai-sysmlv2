@@ -746,18 +746,41 @@ svg.addEventListener('click', (e) => {
 // Add dedicated double click handler for better compatibility
 svg.addEventListener('dblclick', (e) => {
   if (editMode) return;
+  
+  // Check if the target or its parent is a room or vertex element
+  let target = e.target;
+  let roomId = null;
+  while (target && target !== svg && target !== document) {
+    if (target.classList?.contains('room') || target.classList?.contains('vertex')) {
+      roomId = target.getAttribute('data-id') || target.getAttribute('data-room');
+      if (roomId) break;
+    }
+    if (target.classList?.contains('room-name') || target.classList?.contains('room-size')) {
+      // Text elements are inside room group, get parent room id
+      const roomGroup = target.parentNode;
+      roomId = roomGroup?.getAttribute('data-id');
+      if (roomId) break;
+    }
+    target = target.parentNode;
+  }
+  
+  if (roomId) {
+    startEdit(roomId);
+    return;
+  }
+
+  // Fallback to coordinate-based detection
   const { px, py } = pointerPos(e);
   const wx = toWorldX(px);
   const wy = toWorldY(py);
-  
-  // Check if double clicked on a room
+
   for (const r of layout.rooms) {
     if (pointInRoom(wx, wy, r)) {
       startEdit(r.id);
       return;
     }
   }
-  
+
   // Double click on empty space to create room
   startCreate();
   roomXEl.value = snap(wx);

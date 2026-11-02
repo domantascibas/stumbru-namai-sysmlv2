@@ -392,6 +392,50 @@ package Panel {
                     apartment.livingKitchen.L1.power + apartment.livingKitchen.L2.power
                     <= F11.maxLoadPower
                 }
+
+                // Additional power budget constraints for all circuits
+                assert constraint F3PowerBudget {
+                    apartment.bedroom.R1.connectedLoad + apartment.bedroom.R2.connectedLoad + 
+                    apartment.bedroom.R3.connectedLoad + apartment.bedroom.R4.connectedLoad +
+                    apartment.bedroom.L2.power + apartment.bedroom.L3.power +
+                    apartment.livingKitchen.R7.connectedLoad + apartment.livingKitchen.R8.connectedLoad +
+                    apartment.livingKitchen.R9.connectedLoad + apartment.livingKitchen.R10.connectedLoad +
+                    apartment.livingKitchen.R11.connectedLoad
+                    <= F3.maxLoadPower
+                }
+
+                assert constraint F4PowerBudget {
+                    apartment.bathroom.L2.power + apartment.bathroom.R2.connectedLoad
+                    <= F4.maxLoadPower
+                }
+
+                assert constraint F5PowerBudget {
+                    apartment.bathroom.towelRail.power
+                    <= F5.maxLoadPower
+                }
+
+                assert constraint F6PowerBudget {
+                    apartment.bathroom.floorHeating.power
+                    <= F6.maxLoadPower
+                }
+
+                assert constraint F8PowerBudget {
+                    apartment.livingKitchen.R3.connectedLoad + apartment.livingKitchen.R5.connectedLoad +
+                    apartment.livingKitchen.R6.connectedLoad + apartment.livingKitchen.L4.power
+                    <= F8.maxLoadPower
+                }
+
+                assert constraint F9PowerBudget {
+                    apartment.bathroom.R1.connectedLoad + apartment.bathroom.R3.connectedLoad
+                    <= F9.maxLoadPower
+                }
+
+                assert constraint F10PowerBudget {
+                    apartment.livingKitchen.R1.connectedLoad + apartment.livingKitchen.R2.connectedLoad +
+                    apartment.livingKitchen.hood.power
+                    <= F10.maxLoadPower
+                }
+
             }
         }
     }

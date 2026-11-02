@@ -37,10 +37,11 @@ body {
   background: var(--bg);
   color: var(--text);
   font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  display: flex; flex-direction: column;
+  display: grid;
+  grid-template-columns: 280px 1fr;
   overflow: hidden;
 }
-button { font: inherit; color: inherit; }
+button { font: inherit; color: inherit; cursor: pointer; }
 code { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--surface-2); padding: 1px 5px; border-radius: 5px; }
 
 .topbar {
@@ -68,6 +69,199 @@ h1 { font-size: 17px; margin: 0; }
   color: var(--muted); font-size: 12px; background: var(--surface);
 }
 
+/* Sidebar */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  padding: 16px;
+  border: 1px solid var(--line);
+}
+
+.panel h2 {
+  margin: 0 0 12px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+
+/* Area Panel */
+.area-display {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+#total-area {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.room-areas {
+  font-size: 12px;
+}
+
+.room-area-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  color: var(--muted);
+}
+
+.room-area-item .name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.room-area-item .area {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Room Panel */
+.room-list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.room-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.room-item:hover {
+  background: var(--line);
+}
+
+.room-item .name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.room-item .actions {
+  display: flex;
+  gap: 4px;
+}
+
+.room-item .btn-icon {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  font-size: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.room-item .btn-icon:hover {
+  background: var(--surface-2);
+}
+
+/* Form styles */
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Buttons */
+.btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font: inherit;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  background: var(--surface-2);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--accent);
+  opacity: 0.9;
+}
+
+.btn-danger {
+  background: #ff6b6b;
+  border-color: #ff6b6b;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #ff5252;
+  border-color: #ff5252;
+}
+
+#add-room {
+  width: 100%;
+  padding: 10px;
+}
+
+/* Utility */
+@media (max-width: 900px) {
+  body {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    display: none;
+  }
+}
+
 .grid-minor { stroke: var(--grid-minor); stroke-width: 1; }
 .grid-major { stroke: var(--grid-major); stroke-width: 1; }
 .axis { stroke: var(--accent); stroke-width: 1.6; }
@@ -75,6 +269,8 @@ h1 { font-size: 17px; margin: 0; }
 .axis-label { fill: var(--accent); font-size: 11px; font-weight: 600; }
 
 .room rect { fill: var(--room); stroke: var(--room-line); }
+.room.selected rect { fill: var(--accent); opacity: 0.3; }
+.room.selected rect.selected { stroke: var(--accent); stroke-width: 3; }
 .room-name { fill: var(--text); font-size: 15px; font-weight: 600; text-anchor: middle; }
 .room-size { fill: var(--muted); font-size: 11px; text-anchor: middle; font-variant-numeric: tabular-nums; }
 .room-origin { fill: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }

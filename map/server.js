@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -24,14 +24,30 @@ const MIME = {
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   if (url.pathname === '/api/layout') {
-    try {
-      const body = await readFile(layoutFile);
-      res.writeHead(200, { 'content-type': MIME['.json'], 'cache-control': 'no-store' });
-      res.end(body);
-    } catch (err) {
-      res.writeHead(500, { 'content-type': MIME['.json'], 'cache-control': 'no-store' });
-      res.end(JSON.stringify({ error: err.message }));
+    if (req.method === 'GET') {
+      try {
+        const body = await readFile(layoutFile);
+        res.writeHead(200, { 'content-type': MIME['.json'], 'cache-control': 'no-store' });
+        res.end(body);
+      } catch (err) {
+        res.writeHead(500, { 'content-type': MIME['.json'], 'cache-control': 'no-store' });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+      return;
+    } else if (req.method === 'POST') {
+      try {
+        let body = '';
+        for await (const chunk of req) body += chunk;
+        await writeFile(layoutFile, body, 'utf8');
+        res.writeHead(200, { 'content-type': MIME['.json'], 'cache-control': 'no-store' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (err) {
+        res.writeHead(500, { 'content-type': MIME['.json'], 'cache-control': 'no-store' });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+      return;
     }
+    res.writeHead(405).end();
     return;
   }
   const rel = url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname.slice(1));

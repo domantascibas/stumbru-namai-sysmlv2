@@ -4,13 +4,33 @@ const gridStepEl = document.getElementById('grid-step');
 const zoomEl = document.getElementById('zoom');
 const fitBtn = document.getElementById('fit');
 
+// UI elements
+const totalAreaEl = document.getElementById('total-area');
+const roomAreasEl = document.getElementById('room-areas');
+const roomListEl = document.getElementById('room-list');
+const addRoomBtn = document.getElementById('add-room');
+const editPanel = document.getElementById('edit-panel');
+const editTitleEl = document.getElementById('edit-title');
+const roomForm = document.getElementById('room-form');
+const roomIdEl = document.getElementById('room-id');
+const roomNameEl = document.getElementById('room-name');
+const roomXEl = document.getElementById('room-x');
+const roomYEl = document.getElementById('room-y');
+const roomWidthEl = document.getElementById('room-width');
+const roomDepthEl = document.getElementById('room-depth');
+const deleteRoomBtn = document.getElementById('delete-room');
+const cancelEditBtn = document.getElementById('cancel-edit');
+
 const nf = new Intl.NumberFormat('lt-LT', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const nfArea = new Intl.NumberFormat('lt-LT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 let layout = { step: 0.1, rooms: [], devices: [] };
 const view = { s: 60, ox: 60, oy: 60 };
 let cursor = null;
 let drag = null;
+let selectedRoomId = null;
+let editMode = false;
 
 const STEP_CANDIDATES = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100];
 const MIN_PX = 7;
@@ -26,6 +46,201 @@ const toWorldY = (py) => (py - view.oy) / view.s;
 function devicePos(d) {
   const room = layout.rooms.find((r) => r.id === d.room);
   return { x: (room?.planX ?? 0) + d.planX, y: (room?.planY ?? 0) + d.planY };
+}
+
+// Calculate room area
+function calculateRoomArea(room) {
+  return room.planWidth * room.planDepth;
+}
+
+// Calculate total area of all rooms
+function calculateTotalArea() {
+  return layout.rooms.reduce((total, room) => total + calculateRoomArea(room), 0);
+}
+
+// Find room by ID
+function findRoomById(id) {
+  return layout.rooms.find(r => r.id === id);
+}
+
+// Generate unique room ID
+function generateRoomId() {
+  let id = 'room-' + Date.now();
+  let existing = findRoomById(id);
+  let counter = 1;
+  while (existing) {
+    id = 'room-' + Date.now() + '-' + counter;
+    existing = findRoomById(id);
+    counter++;
+  }
+  return id;
+}
+
+// Save layout to server
+async function saveLayout() {
+  try {
+    const response = await fetch('/api/layout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(layout)
+    });
+    if (!response.ok) throw new Error('Failed to save');
+    return await response.json();
+  } catch (err) {
+    console.error('Error saving layout:', err);
+    coordsEl.textContent = `klaida: ${err.message}`;
+    return null;
+  }
+}
+
+// Update area display
+function updateAreaDisplay() {
+  const total = calculateTotalArea();
+  totalAreaEl.textContent = `${nfArea.format(total)} m²`;
+  
+  // Update individual room areas
+  roomAreasEl.innerHTML = layout.rooms.map(room => {
+    const area = calculateRoomArea(room);
+    return `<div class="room-area-item"><span class="name" title="${escapeHtml(room.name)}">${escapeHtml(room.name)}</span><span class="area">${nfArea.format(area)} m²</span></div>`;
+  }).join('');
+}
+
+// Update room list
+function updateRoomList() {
+  roomListEl.innerHTML = layout.rooms.map(room => {
+    const area = calculateRoomArea(room);
+    return `<div class="room-item" data-id="${escapeHtml(room.id)}" title="${escapeHtml(room.name)} - ${nfArea.format(area)} m²">
+      <span class="name">${escapeHtml(room.name)}</span>
+      <span class="actions">
+        <button class="btn-icon edit-btn" data-id="${escapeHtml(room.id)}" title="Redaguoti">✏️</button>
+        <button class="btn-icon delete-btn" data-id="${escapeHtml(room.id)}" title="Šalinti">🗑️</button>
+      </span>
+    </div>`;
+  }).join('');
+  
+  // Add event listeners to edit and delete buttons
+  document.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      startEdit(btn.dataset.id);
+    });
+  });
+  
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteRoom(btn.dataset.id);
+    });
+  });
+  
+  // Add click to select room
+  document.querySelectorAll('.room-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const roomId = item.dataset.id;
+      const room = findRoomById(roomId);
+      if (room) {
+        // Center view on room
+        const centerX = room.planX + room.planWidth / 2;
+        const centerY = room.planY + room.planDepth / 2;
+        const w = svg.clientWidth;
+        const h = svg.clientHeight;
+        if (w && h) {
+          view.s = Math.min(Math.max(40, 60), 600);
+          view.ox = (w - room.planWidth * view.s) / 2 - room.planX * view.s;
+          view.oy = (h - room.planDepth * view.s) / 2 - room.planY * view.s;
+          render();
+        }
+      }
+    });
+  });
+}
+
+// Start editing a room
+function startEdit(roomId) {
+  const room = findRoomById(roomId);
+  if (!room) return;
+  
+  selectedRoomId = roomId;
+  editMode = true;
+  editPanel.style.display = 'block';
+  editTitleEl.textContent = 'Redaguoti kambarį';
+  
+  roomIdEl.value = room.id;
+  roomNameEl.value = room.name;
+  roomXEl.value = room.planX;
+  roomYEl.value = room.planY;
+  roomWidthEl.value = room.planWidth;
+  roomDepthEl.value = room.planDepth;
+  
+  deleteRoomBtn.style.display = 'inline-block';
+  roomNameEl.focus();
+}
+
+// Start creating a new room
+function startCreate() {
+  selectedRoomId = null;
+  editMode = true;
+  editPanel.style.display = 'block';
+  editTitleEl.textContent = 'Pridėti kambarį';
+  
+  roomIdEl.value = '';
+  roomNameEl.value = '';
+  roomXEl.value = cursor ? snap(cursor.x) : 0;
+  roomYEl.value = cursor ? snap(cursor.y) : 0;
+  roomWidthEl.value = 4;
+  roomDepthEl.value = 4;
+  
+  deleteRoomBtn.style.display = 'none';
+  roomNameEl.focus();
+}
+
+// Cancel editing
+function cancelEdit() {
+  editPanel.style.display = 'none';
+  selectedRoomId = null;
+  editMode = false;
+}
+
+// Delete a room
+async function deleteRoom(roomId) {
+  if (!confirm('Ar tikrai norite pašalinti šį kambarį?')) return;
+  
+  const index = layout.rooms.findIndex(r => r.id === roomId);
+  if (index >= 0) {
+    layout.rooms.splice(index, 1);
+    await saveLayout();
+    updateAreaDisplay();
+    updateRoomList();
+    render();
+  }
+}
+
+// Save room (create or update)
+async function saveRoom(e) {
+  e.preventDefault();
+  
+  const roomId = roomIdEl.value || generateRoomId();
+  const room = {
+    id: roomId,
+    name: roomNameEl.value.trim() || 'Naujas kambarys',
+    planX: parseFloat(roomXEl.value) || 0,
+    planY: parseFloat(roomYEl.value) || 0,
+    planWidth: parseFloat(roomWidthEl.value) || 4,
+    planDepth: parseFloat(roomDepthEl.value) || 4
+  };
+  
+  const existingIndex = layout.rooms.findIndex(r => r.id === roomId);
+  if (existingIndex >= 0) {
+    layout.rooms[existingIndex] = room;
+  } else {
+    layout.rooms.push(room);
+  }
+  
+  await saveLayout();
+  updateAreaDisplay();
+  updateRoomList();
+  cancelEdit();
+  render();
 }
 
 function pickStep(minPx) {
@@ -89,8 +304,9 @@ function render() {
     const rw = r.planWidth * view.s;
     const rh = r.planDepth * view.s;
     const wall = Math.min(Math.max(0.1 * view.s, 2), 10);
-    out.push(`<g class="room" data-id="${escapeHtml(r.id)}">
-      <rect x="${x}" y="${y}" width="${rw}" height="${rh}" stroke-width="${wall}"/>
+    const isSelected = selectedRoomId === r.id;
+    out.push(`<g class="room ${isSelected ? 'selected' : ''}" data-id="${escapeHtml(r.id)}">
+      <rect x="${x}" y="${y}" width="${rw}" height="${rh}" stroke-width="${wall}" ${isSelected ? 'class="selected"' : ''}/>
       <text class="room-origin" x="${x + wall + 6}" y="${y + wall + 16}">(${nf.format(r.planX)}, ${nf.format(r.planY)})</text>
       <text class="room-name" x="${x + rw / 2}" y="${y + rh / 2 - 4}">${escapeHtml(r.name)}</text>
       <text class="room-size" x="${x + rw / 2}" y="${y + rh / 2 + 16}">${nf.format(r.planWidth)} × ${nf.format(r.planDepth)} m</text>
@@ -163,6 +379,33 @@ svg.addEventListener('pointermove', (e) => {
   }
   render();
 });
+
+svg.addEventListener('click', (e) => {
+  if (editMode) return;
+  const { px, py } = pointerPos(e);
+  const wx = toWorldX(px);
+  const wy = toWorldY(py);
+  
+  // Check if clicked on a room
+  for (const r of layout.rooms) {
+    if (wx >= r.planX && wx <= r.planX + r.planWidth &&
+        wy >= r.planY && wy <= r.planY + r.planDepth) {
+      // Select the room
+      selectedRoomId = r.id;
+      startEdit(r.id);
+      render();
+      return;
+    }
+  }
+  
+  // If not editing and clicked on empty space, could start creating a room
+  if (e.ctrlKey || e.metaKey) {
+    // Ctrl+click to create room at cursor position
+    startCreate();
+    roomXEl.value = snap(wx);
+    roomYEl.value = snap(wy);
+  }
+});
 svg.addEventListener('pointerup', () => { drag = null; });
 svg.addEventListener('pointercancel', () => { drag = null; });
 svg.addEventListener('pointerleave', () => { cursor = null; render(); });
@@ -181,11 +424,22 @@ fitBtn.addEventListener('click', fit);
 window.addEventListener('keydown', (e) => { if (e.key === 'f') fit(); });
 window.addEventListener('resize', render);
 
+// Event listeners for room management
+addRoomBtn.addEventListener('click', startCreate);
+roomForm.addEventListener('submit', saveRoom);
+cancelEditBtn.addEventListener('click', cancelEdit);
+deleteRoomBtn.addEventListener('click', () => {
+  if (selectedRoomId) deleteRoom(selectedRoomId);
+});
+
 try {
   const res = await fetch('/api/layout');
   if (!res.ok) throw new Error((await res.json()).error ?? res.statusText);
   layout = await res.json();
   fit();
+  // Initialize UI
+  updateAreaDisplay();
+  updateRoomList();
 } catch (err) {
   coordsEl.textContent = `klaida: ${err.message}`;
 }

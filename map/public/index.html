@@ -21,6 +21,58 @@
     <button class="ghost" id="fit" title="Rodyti visą planą">Visas planas</button>
   </header>
 
+  <aside class="sidebar">
+    <section class="panel" id="area-panel">
+      <h2>Bendras plotas</h2>
+      <div class="area-display">
+        <span id="total-area">0.00 m²</span>
+      </div>
+      <div class="room-areas" id="room-areas">
+        <!-- Room areas will be listed here -->
+      </div>
+    </section>
+
+    <section class="panel" id="room-panel">
+      <h2>Kambariai</h2>
+      <div class="room-list" id="room-list">
+        <!-- Room list will be populated here -->
+      </div>
+      <button class="btn btn-primary" id="add-room">+ Pridėti kambarį</button>
+    </section>
+
+    <section class="panel" id="edit-panel" style="display: none;">
+      <h2 id="edit-title">Redaguoti kambarį</h2>
+      <form id="room-form">
+        <input type="hidden" id="room-id" />
+        <div class="form-group">
+          <label for="room-name">Pavadinimas</label>
+          <input type="text" id="room-name" required />
+        </div>
+        <div class="form-group">
+          <label for="room-x">X (m)</label>
+          <input type="number" id="room-x" step="0.1" required />
+        </div>
+        <div class="form-group">
+          <label for="room-y">Y (m)</label>
+          <input type="number" id="room-y" step="0.1" required />
+        </div>
+        <div class="form-group">
+          <label for="room-width">Plotis (m)</label>
+          <input type="number" id="room-width" step="0.1" min="0.1" required />
+        </div>
+        <div class="form-group">
+          <label for="room-depth">Gylis (m)</label>
+          <input type="number" id="room-depth" step="0.1" min="0.1" required />
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Išsaugoti</button>
+          <button type="button" class="btn btn-danger" id="delete-room" style="display: none;">Šalinti</button>
+          <button type="button" class="btn" id="cancel-edit">Atšaukti</button>
+        </div>
+      </form>
+    </section>
+  </aside>
+
   <main class="map-wrap">
     <svg id="map" role="img" aria-label="Buto planas ant 0,1 m tinklelio"></svg>
     <p class="hint">Ratukas keičia mastelį aplink žymeklį, tempimas slenka vaizdą. Koordinatės — metrais nuo kairiojo viršutinio kampo (0,&nbsp;0), x į dešinę, y žemyn; tinklelio žingsnis 0,1 m. Kambarių koordinatės atkeliauja iš <code>map/layout.json</code> (planX, planY, planWidth, planDepth), vėliau — iš SysML modelio.</p>

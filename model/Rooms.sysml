@@ -26,7 +26,7 @@ package Rooms {
                 :>> label = "L1";
                 :>> bulbSocketCount = 1;
                 part ledBulbs : OsramE27LedFilamentGlobe5W[1] :> bulbs;
-                :>> power = RealFunctions::sum(ledBulbs.power);
+                :>> power = QuantityCalculations::sum(ledBulbs.power);
             }
 
             part L2 : Light {
@@ -50,7 +50,7 @@ package Rooms {
                 :>> label = "L3";
                 :>> bulbSocketCount = 4;
                 part ledBulbs : LedvanceGu10Led4W[4] :> bulbs;
-                :>> power = RealFunctions::sum(ledBulbs.power);
+                :>> power = QuantityCalculations::sum(ledBulbs.power);
             }
 
             part L4 : Light {
@@ -80,7 +80,7 @@ package Rooms {
                     comment /* Rating plate allows max 28 W per socket. */
                     :>> bulbSocketCount = 2;
                     part ledBulbs : CozyHomeE14LedFilament4W[2] :> bulbs;
-                    :>> power = RealFunctions::sum(ledBulbs.power);
+                    :>> power = QuantityCalculations::sum(ledBulbs.power);
                 }
             }
 
@@ -248,6 +248,54 @@ package Rooms {
                 :>> label = "S2";
                 ref :>> controls = L4;
             }
+
+            // ----- Cables (book pattern #5: ad-hoc interfaces) -----
+
+            interface tvBoxCable connect supply ::> powerStrip1.plugPoint to consume ::> tvBox.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
+            interface deskLampCable connect supply ::> powerStrip1.plugPoint to consume ::> deskLamp.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
+            interface fridgeCable connect supply ::> R1.plugPoint to consume ::> fridge.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
+            interface microwaveCable connect supply ::> R2.plugPoint to consume ::> microwave.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
+            interface dishwasherCable connect supply ::> R3.plugPoint to consume ::> dishwasher.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
+            interface ovenCable connect supply ::> R4.plugPoint to consume ::> oven.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
+            interface kettleCable connect supply ::> R5.plugPoint to consume ::> kettle.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
+            interface coffeeMachineCable connect supply ::> R6.plugPoint to consume ::> coffeeMachine.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
+            interface vinylPlayerCable connect supply ::> R8.plugPoint to consume ::> vinylPlayer.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
+            interface rpiServerCable connect supply ::> R8.plugPoint to consume ::> rpiServer.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
+            interface roombaCable connect supply ::> R8.plugPoint to consume ::> roomba.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
+            interface powerStrip1Cable connect supply ::> R9.plugPoint to consume ::> powerStrip1.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
+            interface tvCable connect supply ::> R10.plugPoint to consume ::> tv.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
+            interface modem2Cable connect supply ::> R10.plugPoint to consume ::> modem2.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
+            interface speakerCable connect supply ::> R11.plugPoint to consume ::> speaker.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
         }
 
         part kidsRoom : Room {
@@ -265,7 +313,7 @@ package Rooms {
                 :>> bulbSocketCount = 6;
                 part ledBulbs : OkkoG9Led4W[4] :> bulbs;
                 part halogenBulbs : OsramG9Halogen33W[2] :> bulbs;
-                :>> power = RealFunctions::sum(ledBulbs.power) + RealFunctions::sum(halogenBulbs.power);
+                :>> power = QuantityCalculations::sum(ledBulbs.power) + QuantityCalculations::sum(halogenBulbs.power);
             }
 
             part L2 : Light {
@@ -327,6 +375,12 @@ package Rooms {
                 :>> label = "S2";
                 ref :>> controls = L2;
             }
+
+            // ----- Cables (book pattern #5: ad-hoc interfaces) -----
+
+            interface nasCable connect supply ::> R5.plugPoint to consume ::> nas.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
         }
 
         part bedroom : Room {
@@ -344,7 +398,7 @@ package Rooms {
                 :>> bulbSocketCount = 6;
                 part ledBulbs : OkkoG9Led4W[5] :> bulbs;
                 part halogenBulbs : OsramG9Halogen33W[1] :> bulbs;
-                :>> power = RealFunctions::sum(ledBulbs.power) + RealFunctions::sum(halogenBulbs.power);
+                :>> power = QuantityCalculations::sum(ledBulbs.power) + QuantityCalculations::sum(halogenBulbs.power);
             }
 
             part L2 : Light {
@@ -352,7 +406,7 @@ package Rooms {
                 :>> label = "L2";
                 :>> bulbSocketCount = 1;
                 part halogenBulbs : OsramG9Halogen33W[1] :> bulbs;
-                :>> power = RealFunctions::sum(halogenBulbs.power);
+                :>> power = QuantityCalculations::sum(halogenBulbs.power);
             }
 
             part L3 : Light {
@@ -360,7 +414,7 @@ package Rooms {
                 :>> label = "L3";
                 :>> bulbSocketCount = 1;
                 part halogenBulbs : OsramG9Halogen33W[1] :> bulbs;
-                :>> power = RealFunctions::sum(halogenBulbs.power);
+                :>> power = QuantityCalculations::sum(halogenBulbs.power);
             }
 
             // ----- Outlets -----
@@ -433,7 +487,7 @@ package Rooms {
                 :>> label = "L1";
                 :>> bulbSocketCount = 6;
                 part ledBulbs : PhilipsE27Led13W[3] :> bulbs;
-                :>> power = RealFunctions::sum(ledBulbs.power);
+                :>> power = QuantityCalculations::sum(ledBulbs.power);
             }
 
             // ----- Fixed appliances -----
@@ -545,7 +599,7 @@ package Rooms {
                 :>> label = "L1";
                 :>> bulbSocketCount = 4;
                 part ledBulbs : LedvanceGu53Led8W[1] :> bulbs;
-                :>> power = RealFunctions::sum(ledBulbs.power);
+                :>> power = QuantityCalculations::sum(ledBulbs.power);
             }
 
             part L2 : Light {
@@ -615,6 +669,12 @@ package Rooms {
                 :>> label = "S1";
                 ref :>> controls = L2;
             }
+
+            // ----- Cables (book pattern #5: ad-hoc interfaces) -----
+
+            interface washingMachineCable connect supply ::> R3.plugPoint to consume ::> washingMachine.plug {
+                flow of ElectricalPower from supply.electricalEnergy to consume.electricalEnergy;
+            }
         }
 
         part balcony : Room {
@@ -630,7 +690,7 @@ package Rooms {
                 :>> label = "L1";
                 :>> bulbSocketCount = 1;
                 part halogenBulbs : VagnerE27Halogen28W[1] :> bulbs;
-                :>> power = RealFunctions::sum(halogenBulbs.power);
+                :>> power = QuantityCalculations::sum(halogenBulbs.power);
             }
         }
 

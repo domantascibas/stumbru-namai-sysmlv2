@@ -122,9 +122,13 @@ package ElectricalLibrary {
         attribute isWaterproof : Boolean default = false;   // IP44+
         attribute hasDataSocket : Boolean default = false;  // RJ45 in the same frame
         ref part pluggedIn : PluggedAppliance[0..*] default = ();
-        attribute connectedLoad :> ISQElectromagnetism::electricPower default = RealFunctions::sum(pluggedIn.connectedLoad);
-        
-        // Supplier port for power output (book pattern: supplier perspective)
+        attribute :>> connectedLoad default = QuantityCalculations::sum(pluggedIn.connectedLoad);
+
+        // Consumer port: fed by the circuit breaker
+        port lineIn : ~EnergyPort {
+            attribute :>> nominalVoltage = 230 [SI::V];
+        }
+        // Supplier port for power output to plugged-in appliances (book pattern: supplier perspective)
         port plugPoint : EnergyPort {
             attribute :>> nominalVoltage = 230 [SI::V];
         }
@@ -132,7 +136,7 @@ package ElectricalLibrary {
 
     part def Light :> Load {
         doc /* A light with bulbs sets its power to the sum of its bulbs, e.g.
-             * `:>> power = RealFunctions::sum(ledBulbs.power);`
+             * `:>> power = QuantityCalculations::sum(ledBulbs.power);`
              */
         attribute bulbSocketCount : Natural default = 1;   // number of bulb sockets (not bulbs installed)
         attribute lengthM : Real;   // length of a line luminaire (LED strip), metres
@@ -292,7 +296,12 @@ package ElectricalLibrary {
         doc /* Extension cord / power strip plugged into an outlet. */
         attribute socketCount : Natural;
         ref part pluggedIn : PluggedAppliance[0..*] default = ();
-        attribute :>> connectedLoad default = RealFunctions::sum(pluggedIn.connectedLoad);
+        attribute :>> connectedLoad default = QuantityCalculations::sum(pluggedIn.connectedLoad);
+
+        // Supplier port of the strip's own sockets (book pattern: supplier perspective)
+        port plugPoint : EnergyPort {
+            attribute :>> nominalVoltage = 230 [SI::V];
+        }
     }
 
     // ---------------------------------------------------------------
@@ -315,15 +324,19 @@ package ElectricalLibrary {
         // Ports for energy flow (book pattern: supplier perspective)
         port lineIn : ~EnergyPort {
             attribute :>> nominalVoltage = 230 [SI::V];
-            attribute :>> ratedCurrent = ratedCurrent;
         }
         port lineOut : EnergyPort {
             attribute :>> nominalVoltage = 230 [SI::V];
-            attribute :>> ratedCurrent = ratedCurrent;
         }
+        // Inside a port body `ratedCurrent` would name the port's own feature (a cycle),
+        // so the device's rating is bound to the ports from here.
+        bind lineIn.ratedCurrent = ratedCurrent;
+        bind lineOut.ratedCurrent = ratedCurrent;
 
         attribute nominalVoltage :> ISQElectromagnetism::voltage default = 230 [SI::V];
         attribute maxLoadPower :> ISQElectromagnetism::electricPower = ratedCurrent * nominalVoltage;
+        // Current drawn if everything connected downstream ran at its rated power.
+        attribute loadCurrent :> ISQBase::electricCurrent = connectedLoad / nominalVoltage;
 
         // ----- Connected load roll-up (evaluated by the tool) -----
         // Rated power of everything installed downstream, per phase; a multi-pole
@@ -337,11 +350,11 @@ package ElectricalLibrary {
         attribute connectedLoadL3 :> ISQElectromagnetism::electricPower default =
             (if poles >= 3 ? feedLoad / 3 else if phase == Phase::L3 ? feedLoad else 0 [SI::W]) + downstreamLoadL3;
         // Helpers: directly fed and downstream parts of the sums above.
-        attribute feedLoad :> ISQElectromagnetism::electricPower default = RealFunctions::sum(feeds.connectedLoad);
-        attribute downstreamLoad :> ISQElectromagnetism::electricPower default = RealFunctions::sum(downstream.connectedLoad);
-        attribute downstreamLoadL1 :> ISQElectromagnetism::electricPower default = RealFunctions::sum(downstream.connectedLoadL1);
-        attribute downstreamLoadL2 :> ISQElectromagnetism::electricPower default = RealFunctions::sum(downstream.connectedLoadL2);
-        attribute downstreamLoadL3 :> ISQElectromagnetism::electricPower default = RealFunctions::sum(downstream.connectedLoadL3);
+        attribute feedLoad :> ISQElectromagnetism::electricPower default = QuantityCalculations::sum(feeds.connectedLoad);
+        attribute downstreamLoad :> ISQElectromagnetism::electricPower default = QuantityCalculations::sum(downstream.connectedLoad);
+        attribute downstreamLoadL1 :> ISQElectromagnetism::electricPower default = QuantityCalculations::sum(downstream.connectedLoadL1);
+        attribute downstreamLoadL2 :> ISQElectromagnetism::electricPower default = QuantityCalculations::sum(downstream.connectedLoadL2);
+        attribute downstreamLoadL3 :> ISQElectromagnetism::electricPower default = QuantityCalculations::sum(downstream.connectedLoadL3);
     }
 
     part def MainSwitch :> ProtectiveDevice;

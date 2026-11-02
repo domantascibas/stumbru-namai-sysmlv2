@@ -80,8 +80,19 @@ Notes on writing the model so the tool can evaluate it (OpenSysML v0.11.0):
   "undetermined" and makes every sum over it undetermined too.
 - A collection filled by subsetting (`part ledBulbs : X[4] :> bulbs;`) is not
   visible through the general feature, so lights sum their own bulb parts
-  (`:>> power = RealFunctions::sum(ledBulbs.power);`) and breakers list their
+  (`:>> power = QuantityCalculations::sum(ledBulbs.power);`) and breakers list their
   nested breakers in `ref :>> downstream = (...)`.
-- `RealFunctions::sum` is typed `Real`; binding it to a `PowerValue` feature needs
-  `as PowerValue` (the tool then warns about the cast, but evaluates correctly).
+- Sums of quantities use `QuantityCalculations::sum` (`RealFunctions::sum` is typed
+  `Real` and SysIDE rejects quantity arguments).
+- Boundary ports delegate to inner ports with `ref bind` (`ref port circuitF8 : EnergyPort;`
+  `ref bind circuitF8 = Q1.F1.F8.lineOut;`). Declare them as `ref port`: a composite
+  port gets its own instance and the tool reports a binding conflict on `ratedCurrent`.
+  Inside a port body a name refers to the port's own feature, so device attributes are
+  bound to port attributes from the device (`bind lineIn.ratedCurrent = ratedCurrent;`).
+- Connections between the fuse box and the rooms live in the context part
+  `Panel::installation` (`ref part fuseBox :> panel = panel;`), through the boundary ports.
+- An ad-hoc interface names its ends to use them in its flow:
+  `interface kettleCable connect supply ::> R5.plugPoint to consume ::> kettle.plug { flow … }`.
+- Ports, interfaces and constraints are checked by `sysml`; the viewer skips them.
+- Power budgets: `sysml -quiet -instantiate Panel::installation -validate=Panel::installation model`.
 - Unknown power counts as 0 W in the roll-up; the viewer marks such devices with "? W".

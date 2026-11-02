@@ -18,6 +18,11 @@ export class SysmlSyntaxError extends Error {
   }
 }
 
+const SKIPPED = new Set([
+  'item', 'port', 'interface', 'connect', 'connection', 'bind', 'flow', 'end', 'in', 'out', 'inout',
+  'constraint', 'assert', 'require', 'requirement', 'subject', 'satisfy',
+]);
+
 const PUNCTUATION = [':>>', ':>', '::', '..', '{', '}', '(', ')', '[', ']', ';', ',', '=', ':', '.', '*'];
 
 function cleanCommentText(raw) {
@@ -236,12 +241,33 @@ class Parser {
       return { kind: 'partDef', name, isAbstract, supertypes, elements: this.body(), ...loc };
     }
 
+    // Ports, interfaces, items, bindings, flows, constraints and requirements describe
+    // the wiring and checks; the viewer does not draw them, so they are skipped whole.
+    if (SKIPPED.has(this.peek().value) || (this.is('ref') && (this.is('port', 1) || this.is('bind', 1)))) {
+      const keyword = this.peek().value;
+      this.skipElement();
+      return { kind: 'skipped', keyword, ...loc };
+    }
+
     const isRef = Boolean(this.accept('ref'));
     if (this.accept('part')) return this.usage('part', isRef, loc);
     if (this.accept('attribute')) return this.usage('attribute', isRef, loc);
     if (this.is(':>>') || this.is('redefines')) return this.usage(isRef ? 'part' : 'feature', isRef, loc);
 
     throw this.error(`unexpected '${this.peek().value || this.peek().type}'`);
+  }
+
+  // Consumes one element: up to its ';', or through its balanced `{ ... }` body.
+  skipElement() {
+    let depth = 0;
+    for (;;) {
+      const t = this.next();
+      if (t.type === 'eof') throw this.error("unexpected end of file, missing ';' or '}'", t);
+      if (t.type !== 'punct') continue;
+      if (t.value === '{') depth++;
+      if (t.value === '}' && --depth === 0) return;
+      if (t.value === ';' && depth === 0) return;
+    }
   }
 
   usage(featureKind, isRef, loc) {
@@ -325,7 +351,7 @@ class Parser {
       const value = { type: 'number', value: t.value };
       if (this.is('[')) {
         this.next();
-        value.unit = this.qualifiedName();
+        value.unit = this.qualifiedName().split('::').pop(); // [SI::W] -> W
         this.expect(']');
       }
       return value;

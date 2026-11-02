@@ -25,50 +25,40 @@ package Panel {
     requirement def CircuitProtected {
         doc /* Circuit current must not exceed breaker rating. */
         subject breaker : CircuitBreaker;
-        require constraint { breaker.connectedLoad / breaker.nominalVoltage <= breaker.ratedCurrent }
+        require constraint { breaker.loadCurrent <= breaker.ratedCurrent }
     }
 
     part panel : DistributionBoard {
-        // External ports with ref bind to internal circuit breakers (book pattern #2)
-        port gridIn : ~EnergyPort {
-            ref bind = Q1.lineIn;
-        }
-        port circuitF2 : EnergyPort {
-            ref bind = Q1.F1.F2.lineOut;
-        }
-        port circuitF3 : EnergyPort {
-            ref bind = Q1.F1.F3.lineOut;
-        }
-        port circuitF4 : EnergyPort {
-            ref bind = Q1.F1.F4.lineOut;
-        }
-        port circuitF5 : EnergyPort {
-            ref bind = Q1.F1.F5.lineOut;
-        }
-        port circuitF6 : EnergyPort {
-            ref bind = Q1.F1.F6.lineOut;
-        }
-        port circuitF7 : EnergyPort {
-            ref bind = Q1.F1.F7.lineOut;
-        }
-        port circuitF8 : EnergyPort {
-            ref bind = Q1.F1.F8.lineOut;
-        }
-        port circuitF9 : EnergyPort {
-            ref bind = Q1.F1.F9.lineOut;
-        }
-        port circuitF10 : EnergyPort {
-            ref bind = Q1.F1.F10.lineOut;
-        }
-        port circuitF11 : EnergyPort {
-            ref bind = Q1.F1.F11.lineOut;
-        }
-        port circuitF12 : EnergyPort {
-            ref bind = Q1.F1.F12.lineOut;
-        }
-        port circuitF13 : EnergyPort {
-            ref bind = Q1.F1.F13.lineOut;
-        }
+        // Boundary ports delegated to the breakers inside (book pattern #2:
+        // `ref bind chargePort = battery.chargeInPort;`). Connections from outside
+        // use these ports instead of reaching into the breakers. The circuit ports are
+        // references (`ref port`): a composite port would get its own instance, whose
+        // empty `ratedCurrent` then conflicts with the breaker's bound rating.
+        ref bind gridIn = Q1.lineIn;
+        ref port circuitF2 : EnergyPort;
+        ref port circuitF3 : EnergyPort;
+        ref port circuitF4 : EnergyPort;
+        ref port circuitF5 : EnergyPort;
+        ref port circuitF6 : EnergyPort;
+        ref port circuitF7 : EnergyPort;
+        ref port circuitF8 : EnergyPort;
+        ref port circuitF9 : EnergyPort;
+        ref port circuitF10 : EnergyPort;
+        ref port circuitF11 : EnergyPort;
+        ref port circuitF12 : EnergyPort;
+        ref port circuitF13 : EnergyPort;
+        ref bind circuitF2 = Q1.F1.F2.lineOut;
+        ref bind circuitF3 = Q1.F1.F3.lineOut;
+        ref bind circuitF4 = Q1.F1.F4.lineOut;
+        ref bind circuitF5 = Q1.F1.F5.lineOut;
+        ref bind circuitF6 = Q1.F1.F6.lineOut;
+        ref bind circuitF7 = Q1.F1.F7.lineOut;
+        ref bind circuitF8 = Q1.F1.F8.lineOut;
+        ref bind circuitF9 = Q1.F1.F9.lineOut;
+        ref bind circuitF10 = Q1.F1.F10.lineOut;
+        ref bind circuitF11 = Q1.F1.F11.lineOut;
+        ref bind circuitF12 = Q1.F1.F12.lineOut;
+        ref bind circuitF13 = Q1.F1.F13.lineOut;
 
         // ----- Top row -----
 
@@ -81,9 +71,10 @@ package Panel {
             :>> ratedCurrent = 25 [SI::A];
             :>> breakingCapacity = 6000 [SI::A];
             :>> poles = 3;
+            ref :>> downstream = F1;
 
             // Connect main breaker output to RCD input (book pattern #4: Wired interface)
-            interface mainToRcd : Wired connect Q1.lineOut to F1.lineIn;
+            interface mainToRcd : Wired connect lineOut to F1.lineIn;
 
             // RCD test confirmed: all circuits (F2-F13) are behind F1
             part F1 : Rcd {
@@ -94,20 +85,21 @@ package Panel {
                 :>> residualCurrent = 0.03 [SI::A];
                 :>> rcdType = RcdType::AC;
                 :>> poles = 4;
+                ref :>> downstream = (F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13);
 
                 // Connect RCD output to all circuit breakers (book pattern #4)
-                interface rcdToF2 : Wired connect F1.lineOut to F2.lineIn;
-                interface rcdToF3 : Wired connect F1.lineOut to F3.lineIn;
-                interface rcdToF4 : Wired connect F1.lineOut to F4.lineIn;
-                interface rcdToF5 : Wired connect F1.lineOut to F5.lineIn;
-                interface rcdToF6 : Wired connect F1.lineOut to F6.lineIn;
-                interface rcdToF7 : Wired connect F1.lineOut to F7.lineIn;
-                interface rcdToF8 : Wired connect F1.lineOut to F8.lineIn;
-                interface rcdToF9 : Wired connect F1.lineOut to F9.lineIn;
-                interface rcdToF10 : Wired connect F1.lineOut to F10.lineIn;
-                interface rcdToF11 : Wired connect F1.lineOut to F11.lineIn;
-                interface rcdToF12 : Wired connect F1.lineOut to F12.lineIn;
-                interface rcdToF13 : Wired connect F1.lineOut to F13.lineIn;
+                interface rcdToF2 : Wired connect lineOut to F2.lineIn;
+                interface rcdToF3 : Wired connect lineOut to F3.lineIn;
+                interface rcdToF4 : Wired connect lineOut to F4.lineIn;
+                interface rcdToF5 : Wired connect lineOut to F5.lineIn;
+                interface rcdToF6 : Wired connect lineOut to F6.lineIn;
+                interface rcdToF7 : Wired connect lineOut to F7.lineIn;
+                interface rcdToF8 : Wired connect lineOut to F8.lineIn;
+                interface rcdToF9 : Wired connect lineOut to F9.lineIn;
+                interface rcdToF10 : Wired connect lineOut to F10.lineIn;
+                interface rcdToF11 : Wired connect lineOut to F11.lineIn;
+                interface rcdToF12 : Wired connect lineOut to F12.lineIn;
+                interface rcdToF13 : Wired connect lineOut to F13.lineIn;
 
                 part F2 : CircuitBreaker {
                     comment /* Kids' room outlets and cloud light, hallway outlets. Chart position 4. */
@@ -307,136 +299,104 @@ package Panel {
                     ref :>> feeds = apartment.hallway.modemBox;
                 }
 
-                // Connections from circuit breakers to devices (book pattern #4, #5)
-                // Using ad-hoc interfaces for unique connections
-                interface f2ToR1 : Wired connect F2.lineOut to apartment.kidsRoom.R1.plugPoint;
-                interface f2ToR2 : Wired connect F2.lineOut to apartment.kidsRoom.R2.plugPoint;
-                interface f2ToL2 : Wired connect F2.lineOut to apartment.kidsRoom.L2.plug;
-                interface f2ToHallwayR1 : Wired connect F2.lineOut to apartment.hallway.R1.plugPoint;
-                interface f2ToHallwayR2 : Wired connect F2.lineOut to apartment.hallway.R2.plugPoint;
+                // Power budget constraints (book pattern #6): the rated load connected to a
+                // circuit (`connectedLoad`, summed over everything it feeds) against what the
+                // breaker allows. Rated loads all at once is a worst case, not the everyday load.
 
-                interface f3ToBedroomR1 : Wired connect F3.lineOut to apartment.bedroom.R1.plugPoint;
-                interface f3ToBedroomR2 : Wired connect F3.lineOut to apartment.bedroom.R2.plugPoint;
-                interface f3ToBedroomL2 : Wired connect F3.lineOut to apartment.bedroom.L2.plug;
-                interface f3ToBedroomL3 : Wired connect F3.lineOut to apartment.bedroom.L3.plug;
+                assert constraint F2PowerBudget { F2.connectedLoad <= F2.maxLoadPower }
+                assert constraint F3PowerBudget { F3.connectedLoad <= F3.maxLoadPower }
+                assert constraint F4PowerBudget { F4.connectedLoad <= F4.maxLoadPower }
+                assert constraint F5PowerBudget { F5.connectedLoad <= F5.maxLoadPower }
+                assert constraint F6PowerBudget { F6.connectedLoad <= F6.maxLoadPower }
+                assert constraint F8PowerBudget { F8.connectedLoad <= F8.maxLoadPower }
+                assert constraint F9PowerBudget { F9.connectedLoad <= F9.maxLoadPower }
+                assert constraint F10PowerBudget { F10.connectedLoad <= F10.maxLoadPower }
+                assert constraint F11PowerBudget { F11.connectedLoad <= F11.maxLoadPower }
+                assert constraint F12PowerBudget { F12.connectedLoad <= F12.maxLoadPower }
+                assert constraint F13PowerBudget { F13.connectedLoad <= F13.maxLoadPower }
 
-                interface f7ToHob : Wired connect F7.lineOut to apartment.livingKitchen.hob.plug;
-                interface f7ToR4 : Wired connect F7.lineOut to apartment.livingKitchen.R4.plugPoint;
-
-                interface f11ToLivingL1 : Wired connect F11.lineOut to apartment.livingKitchen.L1.plug;
-                interface f11ToLivingL2 : Wired connect F11.lineOut to apartment.livingKitchen.L2.plug;
-                interface f12ToBathroomL1 : Wired connect F12.lineOut to apartment.bathroom.L1.plug;
-                interface f13ToModemBox : Wired connect F13.lineOut to apartment.hallway.modemBox.plug;
-
-                // F2 remaining: R3, R4, R5
-                interface f2ToR3 : Wired connect F2.lineOut to apartment.kidsRoom.R3.plugPoint;
-                interface f2ToR4 : Wired connect F2.lineOut to apartment.kidsRoom.R4.plugPoint;
-                interface f2ToR5 : Wired connect F2.lineOut to apartment.kidsRoom.R5.plugPoint;
-
-                // F3 remaining: R3, R4, R7, R8, R9, R10, R11
-                interface f3ToBedroomR3 : Wired connect F3.lineOut to apartment.bedroom.R3.plugPoint;
-                interface f3ToBedroomR4 : Wired connect F3.lineOut to apartment.bedroom.R4.plugPoint;
-                interface f3ToLivingR7 : Wired connect F3.lineOut to apartment.livingKitchen.R7.plugPoint;
-                interface f3ToLivingR8 : Wired connect F3.lineOut to apartment.livingKitchen.R8.plugPoint;
-                interface f3ToLivingR9 : Wired connect F3.lineOut to apartment.livingKitchen.R9.plugPoint;
-                interface f3ToLivingR10 : Wired connect F3.lineOut to apartment.livingKitchen.R10.plugPoint;
-                interface f3ToLivingR11 : Wired connect F3.lineOut to apartment.livingKitchen.R11.plugPoint;
-
-                // F4: bathroom.L2, R2
-                interface f4ToBathroomL2 : Wired connect F4.lineOut to apartment.bathroom.L2.plug;
-                interface f4ToBathroomR2 : Wired connect F4.lineOut to apartment.bathroom.R2.plugPoint;
-
-                // F5: bathroom.towelRail
-                interface f5ToTowelRail : Wired connect F5.lineOut to apartment.bathroom.towelRail.plug;
-
-                // F6: bathroom.floorHeating
-                interface f6ToFloorHeating : Wired connect F6.lineOut to apartment.bathroom.floorHeating.plug;
-
-                // F8: livingKitchen.R3, R5, R6, L4
-                interface f8ToR3 : Wired connect F8.lineOut to apartment.livingKitchen.R3.plugPoint;
-                interface f8ToR5 : Wired connect F8.lineOut to apartment.livingKitchen.R5.plugPoint;
-                interface f8ToR6 : Wired connect F8.lineOut to apartment.livingKitchen.R6.plugPoint;
-                interface f8ToL4 : Wired connect F8.lineOut to apartment.livingKitchen.L4.plug;
-
-                // F9: bathroom.R1, R3
-                interface f9ToR1 : Wired connect F9.lineOut to apartment.bathroom.R1.plugPoint;
-                interface f9ToR3 : Wired connect F9.lineOut to apartment.bathroom.R3.plugPoint;
-
-                // F10: livingKitchen.R1, R2, hood
-                interface f10ToR1 : Wired connect F10.lineOut to apartment.livingKitchen.R1.plugPoint;
-                interface f10ToR2 : Wired connect F10.lineOut to apartment.livingKitchen.R2.plugPoint;
-                interface f10ToHood : Wired connect F10.lineOut to apartment.livingKitchen.hood.plug;
-
-                // F11 remaining: L3, bedroom.L1, kidsRoom.L1, hallway.L1, balcony.L1, X1
-                interface f11ToLivingL3 : Wired connect F11.lineOut to apartment.livingKitchen.L3.plug;
-                interface f11ToBedroomL1 : Wired connect F11.lineOut to apartment.bedroom.L1.plug;
-                interface f11ToKidsL1 : Wired connect F11.lineOut to apartment.kidsRoom.L1.plug;
-                interface f11ToHallwayL1 : Wired connect F11.lineOut to apartment.hallway.L1.plug;
-                interface f11ToBalconyL1 : Wired connect F11.lineOut to apartment.balcony.L1.plug;
-                interface f11ToX1 : Wired connect F11.lineOut to apartment.livingKitchen.X1.plug;
-
-                // Power budget constraints (book pattern #6)
-                assert constraint F2PowerBudget {
-                    apartment.kidsRoom.R1.connectedLoad + apartment.kidsRoom.R2.connectedLoad + 
-                    apartment.kidsRoom.L2.power + 
-                    apartment.hallway.R1.connectedLoad + apartment.hallway.R2.connectedLoad
-                    <= F2.maxLoadPower
-                }
-
+                // 3-pole: the rating applies per phase.
                 assert constraint F7PowerBudget {
-                    apartment.livingKitchen.hob.power + apartment.livingKitchen.R4.connectedLoad
-                    <= F7.maxLoadPower
-                }
-
-                assert constraint F11PowerBudget {
-                    apartment.livingKitchen.L1.power + apartment.livingKitchen.L2.power
-                    <= F11.maxLoadPower
-                }
-
-                // Additional power budget constraints for all circuits
-                assert constraint F3PowerBudget {
-                    apartment.bedroom.R1.connectedLoad + apartment.bedroom.R2.connectedLoad + 
-                    apartment.bedroom.R3.connectedLoad + apartment.bedroom.R4.connectedLoad +
-                    apartment.bedroom.L2.power + apartment.bedroom.L3.power +
-                    apartment.livingKitchen.R7.connectedLoad + apartment.livingKitchen.R8.connectedLoad +
-                    apartment.livingKitchen.R9.connectedLoad + apartment.livingKitchen.R10.connectedLoad +
-                    apartment.livingKitchen.R11.connectedLoad
-                    <= F3.maxLoadPower
-                }
-
-                assert constraint F4PowerBudget {
-                    apartment.bathroom.L2.power + apartment.bathroom.R2.connectedLoad
-                    <= F4.maxLoadPower
-                }
-
-                assert constraint F5PowerBudget {
-                    apartment.bathroom.towelRail.power
-                    <= F5.maxLoadPower
-                }
-
-                assert constraint F6PowerBudget {
-                    apartment.bathroom.floorHeating.power
-                    <= F6.maxLoadPower
-                }
-
-                assert constraint F8PowerBudget {
-                    apartment.livingKitchen.R3.connectedLoad + apartment.livingKitchen.R5.connectedLoad +
-                    apartment.livingKitchen.R6.connectedLoad + apartment.livingKitchen.L4.power
-                    <= F8.maxLoadPower
-                }
-
-                assert constraint F9PowerBudget {
-                    apartment.bathroom.R1.connectedLoad + apartment.bathroom.R3.connectedLoad
-                    <= F9.maxLoadPower
-                }
-
-                assert constraint F10PowerBudget {
-                    apartment.livingKitchen.R1.connectedLoad + apartment.livingKitchen.R2.connectedLoad +
-                    apartment.livingKitchen.hood.power
-                    <= F10.maxLoadPower
+                    F7.connectedLoadL1 <= F7.maxLoadPower and
+                    F7.connectedLoadL2 <= F7.maxLoadPower and
+                    F7.connectedLoadL3 <= F7.maxLoadPower
                 }
 
             }
         }
+    }
+
+    // System context (book pattern: the connections between the fuse box and the
+    // installation are owned by the part that contains both). The fuse box is seen
+    // only through its boundary ports.
+    part installation {
+        ref part fuseBox :> panel = panel;
+        ref part home :> apartment = apartment;
+
+        interface f2ToR1 : Wired connect fuseBox.circuitF2 to home.kidsRoom.R1.lineIn;
+        interface f2ToR2 : Wired connect fuseBox.circuitF2 to home.kidsRoom.R2.lineIn;
+        interface f2ToL2 : Wired connect fuseBox.circuitF2 to home.kidsRoom.L2.plug;
+        interface f2ToHallwayR1 : Wired connect fuseBox.circuitF2 to home.hallway.R1.lineIn;
+        interface f2ToHallwayR2 : Wired connect fuseBox.circuitF2 to home.hallway.R2.lineIn;
+
+        interface f3ToBedroomR1 : Wired connect fuseBox.circuitF3 to home.bedroom.R1.lineIn;
+        interface f3ToBedroomR2 : Wired connect fuseBox.circuitF3 to home.bedroom.R2.lineIn;
+        interface f3ToBedroomL2 : Wired connect fuseBox.circuitF3 to home.bedroom.L2.plug;
+        interface f3ToBedroomL3 : Wired connect fuseBox.circuitF3 to home.bedroom.L3.plug;
+
+        interface f7ToHob : Wired connect fuseBox.circuitF7 to home.livingKitchen.hob.plug;
+        interface f7ToR4 : Wired connect fuseBox.circuitF7 to home.livingKitchen.R4.lineIn;
+
+        interface f11ToLivingL1 : Wired connect fuseBox.circuitF11 to home.livingKitchen.L1.plug;
+        interface f11ToLivingL2 : Wired connect fuseBox.circuitF11 to home.livingKitchen.L2.plug;
+        interface f12ToBathroomL1 : Wired connect fuseBox.circuitF12 to home.bathroom.L1.plug;
+        interface f13ToModemBox : Wired connect fuseBox.circuitF13 to home.hallway.modemBox.plug;
+
+        // F2 remaining: R3, R4, R5
+        interface f2ToR3 : Wired connect fuseBox.circuitF2 to home.kidsRoom.R3.lineIn;
+        interface f2ToR4 : Wired connect fuseBox.circuitF2 to home.kidsRoom.R4.lineIn;
+        interface f2ToR5 : Wired connect fuseBox.circuitF2 to home.kidsRoom.R5.lineIn;
+
+        // F3 remaining: R3, R4, R7, R8, R9, R10, R11
+        interface f3ToBedroomR3 : Wired connect fuseBox.circuitF3 to home.bedroom.R3.lineIn;
+        interface f3ToBedroomR4 : Wired connect fuseBox.circuitF3 to home.bedroom.R4.lineIn;
+        interface f3ToLivingR7 : Wired connect fuseBox.circuitF3 to home.livingKitchen.R7.lineIn;
+        interface f3ToLivingR8 : Wired connect fuseBox.circuitF3 to home.livingKitchen.R8.lineIn;
+        interface f3ToLivingR9 : Wired connect fuseBox.circuitF3 to home.livingKitchen.R9.lineIn;
+        interface f3ToLivingR10 : Wired connect fuseBox.circuitF3 to home.livingKitchen.R10.lineIn;
+        interface f3ToLivingR11 : Wired connect fuseBox.circuitF3 to home.livingKitchen.R11.lineIn;
+
+        // F4: bathroom.L2, R2
+        interface f4ToBathroomL2 : Wired connect fuseBox.circuitF4 to home.bathroom.L2.plug;
+        interface f4ToBathroomR2 : Wired connect fuseBox.circuitF4 to home.bathroom.R2.lineIn;
+
+        // F5: bathroom.towelRail
+        interface f5ToTowelRail : Wired connect fuseBox.circuitF5 to home.bathroom.towelRail.plug;
+
+        // F6: bathroom.floorHeating
+        interface f6ToFloorHeating : Wired connect fuseBox.circuitF6 to home.bathroom.floorHeating.plug;
+
+        // F8: livingKitchen.R3, R5, R6, L4
+        interface f8ToR3 : Wired connect fuseBox.circuitF8 to home.livingKitchen.R3.lineIn;
+        interface f8ToR5 : Wired connect fuseBox.circuitF8 to home.livingKitchen.R5.lineIn;
+        interface f8ToR6 : Wired connect fuseBox.circuitF8 to home.livingKitchen.R6.lineIn;
+        interface f8ToL4 : Wired connect fuseBox.circuitF8 to home.livingKitchen.L4.plug;
+
+        // F9: bathroom.R1, R3
+        interface f9ToR1 : Wired connect fuseBox.circuitF9 to home.bathroom.R1.lineIn;
+        interface f9ToR3 : Wired connect fuseBox.circuitF9 to home.bathroom.R3.lineIn;
+
+        // F10: livingKitchen.R1, R2, hood
+        interface f10ToR1 : Wired connect fuseBox.circuitF10 to home.livingKitchen.R1.lineIn;
+        interface f10ToR2 : Wired connect fuseBox.circuitF10 to home.livingKitchen.R2.lineIn;
+        interface f10ToHood : Wired connect fuseBox.circuitF10 to home.livingKitchen.hood.plug;
+
+        // F11 remaining: L3, bedroom.L1, kidsRoom.L1, hallway.L1, balcony.L1, X1
+        interface f11ToLivingL3 : Wired connect fuseBox.circuitF11 to home.livingKitchen.L3.plug;
+        interface f11ToBedroomL1 : Wired connect fuseBox.circuitF11 to home.bedroom.L1.plug;
+        interface f11ToKidsL1 : Wired connect fuseBox.circuitF11 to home.kidsRoom.L1.plug;
+        interface f11ToHallwayL1 : Wired connect fuseBox.circuitF11 to home.hallway.L1.plug;
+        interface f11ToBalconyL1 : Wired connect fuseBox.circuitF11 to home.balcony.L1.plug;
+        interface f11ToX1 : Wired connect fuseBox.circuitF11 to home.livingKitchen.X1.plug;
     }
 }

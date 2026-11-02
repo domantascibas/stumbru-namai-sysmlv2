@@ -9,6 +9,8 @@ model/
   Rooms.sysml                       rooms and what is installed in each
   Panel.sysml                       distribution board and which circuit feeds what
 viewer/                             live viewer (Node, no dependencies)
+map/                                floor-plan map on a 0.1 m xy grid (Node, no dependencies)
+  layout.json                       room/device coordinates (demo: bathroom, hallway, balcony)
 docs/panel-legend.*                 printable legend for the panel door
 ```
 
@@ -26,6 +28,7 @@ Without a container: Node 22+, and optionally `sysml` on the PATH
 
 ```sh
 npm start            # viewer: http://localhost:5175
+npm run map          # floor-plan map: http://localhost:5176
 ```
 
 The viewer watches `model/` and updates as soon as a file is saved. Without

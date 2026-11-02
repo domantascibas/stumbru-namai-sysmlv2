@@ -6,6 +6,7 @@
   "engines": { "node": ">=22" },
   "scripts": {
     "start": "node viewer/server.js",
+    "map": "node map/server.js",
     "check": "sysml -validate model"
   }
 }

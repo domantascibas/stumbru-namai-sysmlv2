@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buto planas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="bar-left">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">🗺️</span>
+        <div>
+          <h1>Buto planas</h1>
+          <p class="subtitle">0,1 m koordinatų tinklelio</p>
+        </div>
+      </div>
+    </div>
+    <div class="bar-center">
+      <div class="status" id="total-area">Bendras plotas: 0.00 m²</div>
+    </div>
+    <div class="bar-right">
+      <div class="status" id="coords">x – m · y – m</div>
+      <div class="status" id="grid-step"></div>
+      <div class="status" id="zoom"></div>
+      <div class="dropdown" id="rooms-dropdown">
+        <button type="button" class="dropdown-btn ghost" id="rooms-btn" title="Kambariai">Kambariai ▾</button>
+        <div class="dropdown-content" id="room-list">
+          <!-- Room list will be populated here -->
+        </div>
+      </div>
+      <button type="button" class="ghost" id="add-room" title="Pridėti kambarį">+ Kambarys</button>
+      <button type="button" class="ghost" id="fit" title="Rodyti visą planą">Visas planas</button>
+    </div>
+  </header>
+
+  <!-- Edit panel as a modal dialog -->
+  <div class="modal" id="edit-panel" style="display: none;">
+    <div class="modal-content">
+      <h2 id="edit-title">Redaguoti kambarį</h2>
+      <form id="room-form">
+        <input type="hidden" id="room-id" />
+        <div class="form-row">
+          <div class="form-group">
+            <label for="room-name">Pavadinimas</label>
+            <input type="text" id="room-name" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="room-type">Tipas</label>
+            <select id="room-type">
+              <option value="rect">Stačiakampis</option>
+              <option value="polygon">Daugiakampis</option>
+            </select>
+          </div>
+        </div>
+        <div id="rect-form" class="form-rect">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="room-x">X (m)</label>
+              <input type="number" id="room-x" step="0.1" required />
+            </div>
+            <div class="form-group">
+              <label for="room-y">Y (m)</label>
+              <input type="number" id="room-y" step="0.1" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="room-width">Plotis (m)</label>
+              <input type="number" id="room-width" step="0.1" min="0.1" required />
+            </div>
+            <div class="form-group">
+              <label for="room-depth">Gylis (m)</label>
+              <input type="number" id="room-depth" step="0.1" min="0.1" required />
+            </div>
+          </div>
+        </div>
+        <div id="polygon-form" class="form-polygon" style="display: none;">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Viršūnės (x,y metrais, atskirtos kableliu):</label>
+              <textarea id="room-vertices" rows="3" placeholder="Pvz: 0,0&#10;5,0&#10;5,5&#10;0,5"></textarea>
+              <small>Kiekviena viršūnė naujoje eilutėje arba atskirta kableliu</small>
+            </div>
+          </div>
+          <div class="form-row">
+            <button type="button" id="add-vertex" class="btn">+ Pridėti viršūnę</button>
+            <button type="button" id="clear-vertices" class="btn">Valyti</button>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Išsaugoti</button>
+          <button type="button" class="btn btn-danger" id="delete-room" style="display: none;">Šalinti</button>
+          <button type="button" class="btn" id="cancel-edit">Atšaukti</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modal-overlay" style="display: none;"></div>
+
+  <main class="map-wrap">
+    <svg id="map" role="img" aria-label="Buto planas ant 0,1 m tinklelio"></svg>
+    <p class="hint">Ratukas keičia mastelį aplink žymeklį, tempimas slenka vaizdą. Koordinatės — metrais nuo kairiojo viršutinio kampo (0,&nbsp;0), x į dešinę, y žemyn; tinklelio žingsnis 0,1 m. Kambarių koordinatės atkeliauja iš <code>map/layout.json</code> (planX, planY, planWidth, planDepth).</p>
+  </main>
+
+  <script type="module" src="map.js"></script>
+</body>
+</html>

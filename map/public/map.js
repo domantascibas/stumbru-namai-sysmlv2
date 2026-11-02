@@ -1,6 +1,3 @@
-// Wait for DOM to be fully loaded
-document.addEventListener('DOMContentLoaded', () => {
-
 const svg = document.getElementById('map');
 const coordsEl = document.getElementById('coords');
 const gridStepEl = document.getElementById('grid-step');
@@ -859,5 +856,3 @@ try {
 } catch (err) {
   coordsEl.textContent = `klaida: ${err.message}`;
 }
-
-}); // End of DOMContentLoaded
